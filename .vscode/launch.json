@@ -1,0 +1,19 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Open Website in Chrome (XAMPP)",
+            "type": "chrome",
+            "request": "launch",
+            "url": "http://localhost/sms/",
+            "webRoot": "${workspaceFolder}"
+        },
+        {
+            "name": "Open Website in Edge (XAMPP)",
+            "type": "msedge",
+            "request": "launch",
+            "url": "http://localhost/sms/",
+            "webRoot": "${workspaceFolder}"
+        }
+    ]
+}

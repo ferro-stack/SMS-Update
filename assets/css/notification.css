@@ -128,10 +128,10 @@ th.checkbox-cell input[type=checkbox] {
   font-weight: 500;
 }
 
-.stat-card .value { font-size: 24px; font-weight: 700; color: var(--slate-900); margin-top: 4px; }
-.stat-card .value.warning { color: #b45309; }
-.stat-card .value.accent { color: var(--teal-700); }
-.stat-card .value.danger { color: #b91c1c; }
+.stat-card .value { font-size: 24px; font-weight: 700; color: #238f54; margin-top: 4px; }
+.stat-card .value.warning { color: #dc2626; }
+.stat-card .value.accent { color: #dc2626; }
+.stat-card .value.danger { color: #dc2626; }
 
 /* ---------- Type filter pills ---------- */
 .pill-filter {
@@ -155,11 +155,11 @@ th.checkbox-cell input[type=checkbox] {
 }
 
 .pill-btn:hover { opacity: 0.85; }
-.pill-btn.active.type-all { background: #a2bce2; color: #207399;; }
-.pill-btn.active.type-missing_requirements { background: #fef3c7; color: #92400e; }
-.pill-btn.active.type-renewal_deadline {background: #d6a0ca; color: #df89c2; }
-.pill-btn.active.type-failed_retention { background: #fee2e2; color: #991b1b; }
-.pill-btn.active.type-approval_status { background: #d1fae5; color: #065f46; }
+.pill-btn.active.type-all { background: var(--green-100, #e8f5e9); color: var(--green-900, #134e2a); }
+.pill-btn.active.type-missing_requirements { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+.pill-btn.active.type-renewal_deadline { background: #f3e8ff; color: #6b21a8; border: 1px solid #d8b4fe; }
+.pill-btn.active.type-failed_retention { background: #fee2e2; color: #991b1b; border: 1px solid #fecdd3; }
+.pill-btn.active.type-approval_status { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
 
 /* ---------- Notification status ---------- */
 .notif-status { display: inline-flex; align-items: center; gap: 5px; font-weight: 600; font-size: 13px; }
@@ -375,11 +375,11 @@ th.checkbox-cell input[type=checkbox] {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: #22c55e;
-  color: #ffff;
-  border: none;
+  background: var(--green-900, #134e2a) !important;
+  color: #ffffff !important;
+  border: 1px solid var(--green-900, #134e2a) !important;
   border-radius: 8px;
-  padding: 11px 18px;
+  padding: 10px 18px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
@@ -388,7 +388,11 @@ th.checkbox-cell input[type=checkbox] {
   margin-left: auto;
 }
 
-.btn-primary:hover { background: #15803d; }
+.btn-primary:hover {
+  background: var(--green-800, #1b6336) !important;
+  border-color: var(--green-800, #1b6336) !important;
+  color: #ffffff !important;
+}
 
 /* ---------- Overlay & modal ---------- */
 .notification-overlay {
@@ -415,12 +419,7 @@ th.checkbox-cell input[type=checkbox] {
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  animation: pop 0.18s ease-out;
-}
-
-@keyframes pop {
-  from { opacity: 0; transform: translateY(8px) scale(0.98); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
+  animation: none;
 }
 
 /* ---------- Header ---------- */

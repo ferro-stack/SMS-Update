@@ -1,12 +1,11 @@
 <?php
+require_once __DIR__ . '/../config/config.php';
+
+$page_title = "Renewal & Retention";
 $page_css = "renewal-retention.css";
 $page_js = "renewal-retention.js";
 include __DIR__ . '/../includes/header.php';
 ?>
-<div class="top-nav">
-    <h2>Renewal & Retention</h2>
-    <?php include __DIR__ . '/../includes/navbar.php'; ?>
-</div>
  <main class="page">
 
     <div class="summary-row" id="summaryRow">
@@ -30,32 +29,40 @@ include __DIR__ . '/../includes/header.php';
 
     <div class="toolbar">
       <input type="search" id="searchBox" placeholder="Search by name or student ID…">
-      <select id="SchoolYearFilter">
-        <option value="">All School Year</option>
-        <option value="eligible">2024</option>
-        <option value="at-risk">2025</option>
-        <option value="terminated">2026</option>
-      </select>
+      <div class="select-wrap">
+        <select id="SchoolYearFilter">
+          <option value="">All School Year</option>
+          <option value="eligible">2024</option>
+          <option value="at-risk">2025</option>
+          <option value="terminated">2026</option>
+        </select>
+      </div>
 
-      <select id="semesterFilter">
-        <option value="">All Semesters</option>
-        <option value="first">First Semester</option>
-        <option value="second">Second Semester</option>
-      </select>
+      <div class="select-wrap">
+        <select id="semesterFilter">
+          <option value="">All Semesters</option>
+          <option value="first">First Semester</option>
+          <option value="second">Second Semester</option>
+        </select>
+      </div>
 
-      <select id="scholarshipFilter">
-        <option value="">All Schoalrship Type</option>
-        <option value="eligible">Academic Scholarship</option>
-        <option value="at-risk">Merit Scholarship</option>
-        <option value="terminated">Endorsment Scholarships</option>
-      </select>
+      <div class="select-wrap">
+        <select id="scholarshipFilter">
+          <option value="">All Scholarship Type</option>
+          <option value="eligible">Academic Scholarship</option>
+          <option value="at-risk">Merit Scholarship</option>
+          <option value="terminated">Endorsement Scholarships</option>
+        </select>
+      </div>
 
-      <select id="statusFilter">
-        <option value="">All statuses</option>
-        <option value="eligible">Eligible</option>
-        <option value="at-risk">At-Risk</option>
-        <option value="terminated">Terminated</option>
-      </select>
+      <div class="select-wrap">
+        <select id="statusFilter">
+          <option value="">All statuses</option>
+          <option value="eligible">Eligible</option>
+          <option value="at-risk">At-Risk</option>
+          <option value="terminated">Terminated</option>
+        </select>
+      </div>
     </div>
 
     <table class="ledger" id="ledgerTable">
@@ -67,7 +74,7 @@ include __DIR__ . '/../includes/header.php';
           <th>Grades</th>
           <th>Enrollment</th>
           <th>Status</th>
-          <th>View</th>
+          <th style="text-align:right;">Actions</th>
         </tr>
       </thead>
       <tbody id="ledgerBody"></tbody>
@@ -76,28 +83,52 @@ include __DIR__ . '/../includes/header.php';
 </div>
 
 <!-- Evaluation detail modal -->
-<div class="modal-overlay" id="modalOverlay">
-  <div class="modal">
-    <button class="modal-close" id="modalClose" aria-label="Close">&times;</button>
-    <div class="modal-header">
+<div class="custom-modal-overlay" id="modalOverlay">
+  <div class="custom-modal-card lg">
+    <div class="custom-modal-header">
       <div>
-        <div class="modal-name" id="modalName">—</div>
-        <div class="modal-id" id="modalId">—</div>
+        <h3 class="modal-name" id="modalName" style="font-size: 18px; font-weight: 700; color: #134e2a;">—</h3>
+        <p class="modal-id font-mono" id="modalId" style="font-size: 13px; color: #6b7280; margin-top: 2px;">—</p>
       </div>
-      <div class="term-tag">Term: 2025-2nd Sem</div>
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <span class="badge badge-neutral font-mono" style="font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 99px;">Term: 2025-2nd Sem</span>
+        <button type="button" class="custom-modal-close" id="modalClose"><i data-lucide="x"></i></button>
+      </div>
     </div>
 
-    <div class="criteria-list" id="modalCriteria"></div>
+    <div class="custom-modal-body">
+      <div class="criteria-list" id="modalCriteria" style="margin-bottom: 20px;"></div>
 
-    <div class="remarks-box" id="modalRemarks">
-      <div class="remarks-label">Result</div>
-      <span class="seal" id="modalSeal">—</span>
-      <div class="remarks-text" id="modalRemarksText"></div>
+      <div class="remarks-box" id="modalRemarks" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; margin-top: 12px;">
+        <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; margin-bottom: 8px;">Evaluation Result</div>
+        <span class="status-badge" id="modalSeal">—</span>
+        <div class="remarks-text" id="modalRemarksText" style="font-size: 13.5px; color: #334155; margin-top: 8px;"></div>
+      </div>
     </div>
 
-    <div class="modal-actions">
-      <button class="btn btn-primary" id="renewBtn">Renew Scholarship</button>
-      <button class="btn btn-ghost" id="flagBtn">Flag for Review</button>
+    <div class="custom-modal-footer">
+      <button type="button" class="btn-secondary" id="flagBtn">Flag for Review</button>
+      <button type="button" class="btn-primary" id="renewBtn">Renew Scholarship</button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirm Modal -->
+<div class="custom-modal-overlay" id="renDeleteOverlay">
+  <div class="custom-modal-card sm">
+    <div class="custom-modal-header">
+      <div>
+        <h3>Delete Scholar Entry</h3>
+        <p>Confirm deletion from renewal ledger.</p>
+      </div>
+      <button type="button" class="custom-modal-close" id="renDeleteCloseBtn"><i data-lucide="x"></i></button>
+    </div>
+    <div class="custom-modal-body">
+      <p style="font-size:14px; color:#4b5563;">Are you sure you want to delete renewal entry for <strong id="renDeleteTarget"></strong>?</p>
+    </div>
+    <div class="custom-modal-footer">
+      <button type="button" class="btn-secondary" id="renDeleteCancelBtn">Cancel</button>
+      <button type="button" class="btn-danger" id="renDeleteConfirmBtn">Delete Entry</button>
     </div>
   </div>
 </div>

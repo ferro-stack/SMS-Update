@@ -1,111 +1,126 @@
+"use strict";
 /* ============================================================
    Frontend API client — talks to the PHP backend under /api.
-   If your project folder isn't served at the site root, change
-   API_BASE below (e.g. "/scholarship-portal/api").
+   Converted to strict TypeScript script.
    ============================================================ */
-
-const API_BASE = "api";
-
+const API_BASE = (typeof window !== "undefined" && window.API_BASE) ? window.API_BASE : "api";
 async function apiListApplicants(status) {
-  const url = status ? `${API_BASE}/list_applicants.php?status=${encodeURIComponent(status)}` : `${API_BASE}/list_applicants.php`;
-  const res = await fetch(url);
-  const json = await res.json();
-  if (!json.success) throw new Error(json.message || "Failed to load applicants.");
-  return json.data;
+    const url = status ? `${API_BASE}/list_applicants.php?status=${encodeURIComponent(status)}` : `${API_BASE}/list_applicants.php`;
+    const res = await fetch(url);
+    const json = await res.json();
+    if (!json.success || !json.data)
+        throw new Error(json.message || "Failed to load applicants.");
+    return json.data;
 }
-
 async function apiGetApplicant(id) {
-  const res = await fetch(`${API_BASE}/get_applicant.php?id=${id}`);
-  const json = await res.json();
-  if (!json.success) throw new Error(json.message || "Failed to load applicant.");
-  return json.data;
+    const res = await fetch(`${API_BASE}/get_applicant.php?id=${id}`);
+    const json = await res.json();
+    if (!json.success || !json.data)
+        throw new Error(json.message || "Failed to load applicant.");
+    return json.data;
 }
-
 async function apiSaveApplicant(formEl, applicantId) {
-  const formData = new FormData();
-
-  // Collect every text/select/textarea field
-  formEl.querySelectorAll("[data-field]").forEach(el => {
-    if (el.type === "file") return;
-    formData.append(el.dataset.field, el.value);
-  });
-
-  // Attach files only if the user actually chose one
-  formEl.querySelectorAll("input[type=file][data-field]").forEach(el => {
-    if (el.files && el.files[0]) {
-      formData.append(el.dataset.field, el.files[0]);
-    }
-  });
-
-  if (applicantId) formData.append("id", applicantId);
-
-  const res = await fetch(`${API_BASE}/save_applicant.php`, {
-    method: "POST",
-    body: formData,
-  });
-  const json = await res.json();
-  if (!json.success) throw new Error(json.message || "Failed to save applicant.");
-  return json;
+    const formData = new FormData();
+    formEl.querySelectorAll("[data-field]").forEach(el => {
+        if (el instanceof HTMLInputElement && el.type === "file")
+            return;
+        const key = el.dataset.field;
+        if (key)
+            formData.append(key, el.value);
+    });
+    formEl.querySelectorAll("input[type=file][data-field]").forEach(el => {
+        const key = el.dataset.field;
+        if (key && el.files && el.files[0]) {
+            formData.append(key, el.files[0]);
+        }
+    });
+    if (applicantId)
+        formData.append("id", String(applicantId));
+    const res = await fetch(`${API_BASE}/save_applicant.php`, {
+        method: "POST",
+        body: formData,
+    });
+    const json = await res.json();
+    if (!json.success)
+        throw new Error(json.message || "Failed to save applicant.");
+    return json;
 }
-
 async function apiMoveToEvaluation(id) {
-  const formData = new FormData();
-  formData.append("id", id);
-  const res = await fetch(`${API_BASE}/move_to_evaluation.php`, { method: "POST", body: formData });
-  const json = await res.json();
-  if (!json.success) throw new Error(json.message || "Failed to move applicant to evaluation.");
-  return json;
+    const formData = new FormData();
+    formData.append("id", String(id));
+    const res = await fetch(`${API_BASE}/move_to_evaluation.php`, { method: "POST", body: formData });
+    const json = await res.json();
+    if (!json.success)
+        throw new Error(json.message || "Failed to move applicant to evaluation.");
+    return json;
 }
-
 async function apiDecideApplicant(id, decision) {
-  const formData = new FormData();
-  formData.append("id", id);
-  formData.append("decision", decision);
-  const res = await fetch(`${API_BASE}/decide.php`, { method: "POST", body: formData });
-  const json = await res.json();
-  if (!json.success) throw new Error(json.message || "Failed to save decision.");
-  return json;
+    const formData = new FormData();
+    formData.append("id", String(id));
+    formData.append("decision", decision);
+    const res = await fetch(`${API_BASE}/decide.php`, { method: "POST", body: formData });
+    const json = await res.json();
+    if (!json.success)
+        throw new Error(json.message || "Failed to save decision.");
+    return json;
 }
-
 async function apiListNotifications(type) {
-  const url = type ? `${API_BASE}/list_notifications.php?type=${encodeURIComponent(type)}` : `${API_BASE}/list_notifications.php`;
-  const res = await fetch(url);
-  const json = await res.json();
-  if (!json.success) throw new Error(json.message || "Failed to load notifications.");
-  return json; // { data, summary }
+    const url = type ? `${API_BASE}/list_notifications.php?type=${encodeURIComponent(type)}` : `${API_BASE}/list_notifications.php`;
+    const res = await fetch(url);
+    const json = await res.json();
+    if (!json.success)
+        throw new Error(json.message || "Failed to load notifications.");
+    return json;
 }
-
 async function apiGetRecipients(segment) {
-  const res = await fetch(`${API_BASE}/get_recipients.php?segment=${encodeURIComponent(segment)}`);
-  const json = await res.json();
-  if (!json.success) throw new Error(json.message || "Failed to load recipients.");
-  return json; // { data, count }
+    const res = await fetch(`${API_BASE}/get_recipients.php?segment=${encodeURIComponent(segment)}`);
+    const json = await res.json();
+    if (!json.success)
+        throw new Error(json.message || "Failed to load recipients.");
+    return json;
 }
-
 async function apiSendNotification(payload) {
-  const formData = new FormData();
-  Object.entries(payload).forEach(([key, value]) => formData.append(key, value));
-  const res = await fetch(`${API_BASE}/send_notification.php`, { method: "POST", body: formData });
-  const json = await res.json();
-  if (!json.success) throw new Error(json.message || "Failed to send notification.");
-  return json; // { sent, failed, total, message }
+    const formData = new FormData();
+    Object.entries(payload).forEach(([key, value]) => formData.append(key, value));
+    const res = await fetch(`${API_BASE}/send_notification.php`, { method: "POST", body: formData });
+    const json = await res.json();
+    if (!json.success)
+        throw new Error(json.message || "Failed to send notification.");
+    return json;
 }
-
-/* Updates the small count badge next to nav links, if present on the page */
 async function updateNavCounts() {
-  try {
-    const [pending, evaluation, decided] = await Promise.all([
-      apiListApplicants("pending"),
-      apiListApplicants("evaluation"),
-      apiListApplicants("approved,rejected"),
-    ]);
-    const appEl = document.getElementById("navAppCount");
-    const evalEl = document.getElementById("navEvalCount");
-    const recEl = document.getElementById("navRecordsCount");
-    if (appEl) appEl.textContent = pending.length;
-    if (evalEl) evalEl.textContent = evaluation.length;
-    if (recEl) recEl.textContent = decided.length;
-  } catch (e) {
-    console.error("Failed to update nav counts:", e);
-  }
+    try {
+        const [pending, evaluation, decided, notifRes] = await Promise.all([
+            apiListApplicants("pending"),
+            apiListApplicants("evaluation"),
+            apiListApplicants("approved,rejected"),
+            apiListNotifications().catch(() => ({ data: [] })),
+        ]);
+        const appEl = document.getElementById("navAppCount");
+        const evalEl = document.getElementById("navEvalCount");
+        const recEl = document.getElementById("navRecordsCount");
+        const notifEl = document.getElementById("navNotifBadge");
+        if (appEl)
+            appEl.textContent = String(pending.length);
+        if (evalEl)
+            evalEl.textContent = String(evaluation.length);
+        if (recEl)
+            recEl.textContent = String(decided.length);
+        if (notifEl && notifRes && Array.isArray(notifRes.data)) {
+            notifEl.textContent = String(notifRes.data.length);
+        }
+    }
+    catch (e) {
+        console.error("Failed to update nav counts:", e);
+    }
 }
+// Assign to window for global availability across pages
+window.apiListApplicants = apiListApplicants;
+window.apiGetApplicant = apiGetApplicant;
+window.apiSaveApplicant = apiSaveApplicant;
+window.apiMoveToEvaluation = apiMoveToEvaluation;
+window.apiDecideApplicant = apiDecideApplicant;
+window.apiListNotifications = apiListNotifications;
+window.apiGetRecipients = apiGetRecipients;
+window.apiSendNotification = apiSendNotification;
+window.updateNavCounts = updateNavCounts;

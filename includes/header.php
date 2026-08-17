@@ -1,23 +1,40 @@
-<?php require_once __DIR__ . '/../config/config.php';
+<?php 
+require_once __DIR__ . '/../config/config.php';
+checkAuth();
 ?>
 
 <!DOCTYPE html>
 <html>
     <head>
-        <meta charset="UTF-8">
-        <link href="<?= SITE_URL ?>/assets/css/style.css" rel="stylesheet">
-        <link href="<?= SITE_URL ?>/assets/lib/bulma.min.css" rel="stylesheet">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@100..900&display=swap" rel="stylesheet">
+        <link href="<?= SITE_BASE ?>/assets/css/style.css" rel="stylesheet">
         <?php if (isset($page_css)): ?>
-            <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/<?= $page_css ?>">
+            <link rel="stylesheet" href="<?= SITE_BASE ?>/assets/css/<?= $page_css ?>">
         <?php endif; ?>
-        <link rel="icon" href="<?= SITE_URL ?>/assets/img/cmlogoremove.png">
-        <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+        <link rel="icon" href="<?= SITE_BASE ?>/assets/img/cmlogoremove.png">
+        <script>
+            window.SITE_BASE = <?= json_encode(SITE_BASE) ?>;
+            window.SITE_URL = <?= json_encode(SITE_URL) ?>;
+            window.API_BASE = window.SITE_BASE + '/api';
+        </script>
+        <script src="<?= SITE_BASE ?>/assets/lib/lucide.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        <title>Dashboard Menu</title>
-            <link rel="icon" href="assets/img/cmlogoremove.png">
+        <script src="<?= SITE_BASE ?>/assets/js/api.js"></script>
+        <title><?= htmlspecialchars(($page_title ?? 'Scholarship Portal') . ' - Scholarship Portal') ?></title>
     </head>  
 
 
 <body>
+    <div id="pageProgressBar" class="page-progress-bar"></div>
     <section class="home">
         <?php include __DIR__ . '/../includes/sidebar.php'; ?>
+
+        <div class="top-nav-sticky">
+            <div class="top-nav">
+                <h2><?= htmlspecialchars($page_title ?? 'Dashboard') ?></h2>
+                <?php include __DIR__ . '/../includes/navbar.php'; ?>
+            </div>
+        </div>
+

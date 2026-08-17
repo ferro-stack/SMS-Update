@@ -1,14 +1,11 @@
-    <?php
+<?php
+$page_title = "Notifications";
 $page_css = "notification.css";
 $page_js = "notification.js";
- include __DIR__ . '/../includes/header.php';
+include __DIR__ . '/../includes/header.php';
 ?>
 
-<div class="top-nav">
-    <h2>Notifications</h2>
-    <?php include __DIR__ . '/../includes/navbar.php'; ?>
-</div>
-  <div class="page">
+<div class="page">
 
     <div class="stat-grid">
       <div class="stat-card">
@@ -50,6 +47,7 @@ $page_js = "notification.js";
               <th>Channel</th>
               <th>Status</th>
               <th>Sent</th>
+              <th style="text-align:right;">Actions</th>
             </tr>
           </thead>
           <tbody id="notifTableBody"></tbody>
@@ -59,6 +57,40 @@ $page_js = "notification.js";
       <div class="empty-state" id="notifEmptyState">
         <p>No notifications sent yet.</p>
         <span>Click "New notification" to send your first one.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- View Notification Modal -->
+  <div class="custom-modal-overlay" id="notifViewOverlay">
+    <div class="custom-modal-card sm">
+      <div class="custom-modal-header">
+        <div>
+          <h3>Notification Log Details</h3>
+          <p>Full record of sent notification dispatch.</p>
+        </div>
+        <button type="button" class="custom-modal-close" id="notifViewCloseBtn"><i data-lucide="x"></i></button>
+      </div>
+      <div class="custom-modal-body" id="notifViewBody"></div>
+    </div>
+  </div>
+
+  <!-- Delete Confirm Modal -->
+  <div class="custom-modal-overlay" id="notifDeleteOverlay">
+    <div class="custom-modal-card sm">
+      <div class="custom-modal-header">
+        <div>
+          <h3>Delete Notification Log</h3>
+          <p>Confirm notification record removal.</p>
+        </div>
+        <button type="button" class="custom-modal-close" id="notifDeleteCloseBtn"><i data-lucide="x"></i></button>
+      </div>
+      <div class="custom-modal-body">
+        <p style="font-size:14px; color:#4b5563;">Are you sure you want to delete this notification record?</p>
+      </div>
+      <div class="custom-modal-footer">
+        <button type="button" class="btn-secondary" id="notifDeleteCancelBtn">Cancel</button>
+        <button type="button" class="btn-danger" id="notifDeleteConfirmBtn">Delete Log</button>
       </div>
     </div>
   </div>

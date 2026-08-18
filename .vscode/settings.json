@@ -1,0 +1,10 @@
+{
+    "php.validate.executablePath": "C:\\xampp\\php\\php.exe",
+    "php.debug.executablePath": "C:\\xampp\\php\\php.exe",
+    "phpserver.phpPath": "C:\\xampp\\php\\php.exe",
+    "phpserver.relativePath": "sms",
+    "phpserver.router": "index.php",
+    "phpserver.port": 80,
+    "phpserver.browser": "open",
+    "php-executable.path": "C:\\xampp\\php\\php.exe"
+}

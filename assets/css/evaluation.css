@@ -36,47 +36,43 @@
     font-weight:600;
 }
 
-.toolbar {
-    display:flex;
-    align-items:center;
-    gap:8px;
-    flex-wrap:wrap;
+.table-header-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
     margin-bottom: 20px;
+    flex-wrap: nowrap;
+    width: 100%;
 }
 
-select, .search-wrap input {
-    border:1px solid var(--line);
-    border-radius:6px;
-    font-size: 14px;
-    font-weight: 400;
-     letter-spacing: 0.04em;
-    color: var(--slate-500);
-    padding: 12px 16px;
-}
-
-select {
-    padding:6px 26px 6px 10px;
-    appearance:none;
-    background:#fff url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2'><polyline points='6 9 12 15 18 9'/></svg>") no-repeat right 8px center;
+.toolbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: nowrap;
+    flex: 1;
+    min-width: 0;
 }
 
 .search-wrap {
-    position:relative;
-    flex:1;
-    max-width:260px;
+    position: relative;
+    flex: 1;
+    max-width: 220px;
 }
 
 .search-wrap input {
-    width:100%;
-    padding:6px 30px 6px 10px;
-    outline:none;
+    width: 100%;
+    padding: 6px 30px 6px 10px;
+    outline: none;
 }
 
 .search-wrap svg {
-    position:absolute;
-    right:9px;top:50%;
-    transform:translateY(-50%);
-    color:var(--ink-soft);
+    position: absolute;
+    right: 9px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--ink-soft);
 }
 
 .table-card {
@@ -110,30 +106,30 @@ table {
 }
 
 thead th {
-    position:sticky;
-    top:0;background:var(--panel);
-    text-align:left;
-    font-size:11px;
-    text-transform:uppercase;
-    letter-spacing:.03em;
-    color:var(--ink-soft);
-    font-weight:600;
-    padding:10px 12px;
-    border-bottom:1px solid var(--line);
+    background: #ffffff;
+    text-align: left;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    color: #6b7280;
+    font-weight: 600;
+    padding: 12px 16px;
+    border-bottom: 1px solid #e5e7eb;
 }
 
 tbody td {
-    padding:10px 12px;
-    border-top:1px solid var(--line);
-    vertical-align:middle;
+    padding: 14px 16px;
+    border-bottom: 1px solid #f3f4f6;
+    vertical-align: middle;
 }
 
 tbody tr.active {
-    background:var(--blue-bg);
+    background: #e8f5e9 !important;
 }
 
 tbody tr:hover {
-    background:#FAFBFC;cursor:pointer;
+    background: #f9fafb;
+    cursor: pointer;
 }
 
 .avatar {
@@ -207,14 +203,19 @@ tbody tr:hover {
 }
 
 .btn-review {
-    background:var(--blue);
-    color:#fff;
-    border:none;
-    border-radius:6px;
-    padding:6px 14px;
-    font-size:12px;
-    font-weight:600;
-    cursor:pointer;
+    background: var(--green-700, #238f54);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.btn-review:hover {
+    background: var(--green-800, #1b6336);
 }
 
 .empty {
@@ -246,12 +247,16 @@ tbody tr:hover {
 }
 
 .right-body {
-    overflow-y:auto;
-    flex:1;
+#rightPanel .custom-modal-body {
+    padding: 16px 28px 24px 28px !important;
 }
 
 .profile {
-    padding:16px 20px 10px;
+    padding: 14px 16px;
+    background: #f9fafb;
+    border: 1.5px solid #d1d5db !important;
+    border-radius: 12px;
+    margin: 0 0 16px 0;
 }
 
 .profile-top {
@@ -263,11 +268,10 @@ tbody tr:hover {
 .profile-top .avatar {
     width:44px;
     height:44px;
-    font-size:
-    13px;
+    font-size: 13px;
 }
 
-.profile-name {
+.eval-profile-name {
     font-weight:600;
     font-size:14px;
     display:flex;
@@ -293,10 +297,11 @@ tbody tr:hover {
 }
 
 .tabs {
-    display:flex;
-    gap:16px;
-    padding:0 20px;
-    border-bottom:1px solid var(--line);
+    display: flex;
+    gap: 16px;
+    padding: 0 4px;
+    margin-bottom: 16px;
+    border-bottom: 1.5px solid #e5e7eb !important;
 }
 
 .tab {
@@ -317,7 +322,7 @@ tbody tr:hover {
 }
 
 .section {
-    padding:16px 20px;
+    padding: 0 0 16px 0;
 }
 
 .section h3 {
@@ -329,14 +334,15 @@ tbody tr:hover {
 .summary-grid {
     display:grid;
     grid-template-columns:repeat(3,1fr);
-    gap:8px;
+    gap:10px;
 }
 
 .summary-card {
-    border:1px solid var(--line);
-    border-radius:8px;
-    padding:10px;
-    text-align:center;
+    border: 1.5px solid #d1d5db !important;
+    border-radius: 10px;
+    padding: 12px;
+    background: #ffffff;
+    text-align: center;
 }
 
 .summary-card .big {
@@ -359,11 +365,15 @@ tbody tr:hover {
 }
 
 .req-row {
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    padding:5px 0;
-    font-size:12.5px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    font-size: 12.5px;
+    background: #f9fafb;
+    border: 1.5px solid #e5e7eb !important;
+    border-radius: 8px;
+    margin-bottom: 8px;
 }
 
 .req-left {
@@ -398,14 +408,15 @@ tbody tr:hover {
 }
 
 textarea {
-    width:100%;
-    border:1px solid var(--line);
-    border-radius:6px;
-    padding:10px;
-    font-size:12.5px;
-    font-family:inherit;
-    resize:none;
-    outline:none;
+    width: 100%;
+    border: 1.5px solid #d1d5db !important;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 13px;
+    font-family: inherit;
+    resize: vertical;
+    outline: none;
+    background: #ffffff;
 }
 
 .actions {
@@ -463,11 +474,146 @@ textarea {
 }
 
 ::-webkit-scrollbar {
-    width:8px;
-    height:8px;
+    width: 5px;
+    height: 5px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-    background:var(--line);
-    border-radius:4px;
+    background: #cbd5e1;
+    border-radius: 99px;
 }
+
+::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* ===========================
+   EVALUATION IMPORT STYLES
+=========================== */
+
+.eval-import-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+@media (max-width: 768px) {
+    .eval-import-container {
+        grid-template-columns: 1fr;
+    }
+}
+
+.import-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid var(--slate-200, #e2e8f0);
+    box-shadow: 0 4px 12px rgba(0,0,0,.04);
+}
+
+.import-card h2 {
+    margin: 0 0 16px;
+    color: var(--green-900, #134e2a);
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.button-group {
+    display: flex;
+    gap: 12px;
+}
+
+.button-group button {
+    flex: 1;
+    border: none;
+    padding: 10px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13.5px;
+    font-weight: 600;
+    transition: .2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+#gradeBtn,
+#enrollmentBtn {
+    background: #f2faf4;
+    color: var(--green-900, #134e2a);
+    border: 1px solid var(--green-100, #e8f5e9);
+}
+
+#gradeBtn:hover,
+#enrollmentBtn:hover {
+    background: #e8f5e9;
+}
+
+.import-btn {
+    background: var(--green-900, #134e2a);
+    color: white;
+}
+
+.import-btn:hover {
+    background: var(--green-800, #1b6336);
+}
+
+.selected-file {
+    margin-top: 12px;
+    padding: 8px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f9fafb;
+    font-size: 13px;
+}
+
+.selected-file span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #4b5563;
+}
+
+.selected-file button {
+    display: none;
+    border: none;
+    background: transparent;
+    color: #ef4444;
+    cursor: pointer;
+    padding: 2px;
+    border-radius: 4px;
+    line-height: 1;
+}
+
+.selected-file button:hover {
+    color: #dc2626;
+    background: #fee2e2;
+}
+
+.header-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
+.header-actions .btn-primary {
+    white-space: nowrap;
+}
+
+.btn-no-anim,
+.btn-no-anim:hover {
+    transform: none !important;
+    transition: background-color 0.2s ease !important;
+}
+

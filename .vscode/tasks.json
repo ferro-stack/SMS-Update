@@ -1,0 +1,18 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Open Website in XAMPP (http://localhost/sms/)",
+            "type": "shell",
+            "command": "start http://localhost/sms/",
+            "windows": {
+                "command": "start http://localhost/sms/"
+            },
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        }
+    ]
+}

@@ -1,46 +1,49 @@
 <?php
+$page_title = "Records";
 $page_css = "records.css";
 $page_js = "records.js";
 
 include __DIR__ . '/../includes/header.php';
 ?>
 
-<div class="top-nav">
-    <h2>Records</h2>
-    <?php include __DIR__ . '/../includes/navbar.php'; ?>
-</div>
-
 <div class="page">
+    <div class="table-header-toolbar">
+        <div class="toolbar">
+            <div class="search-wrap">
+                <input type="text" placeholder="Search applicant...">
+                <i data-lucide="search"></i>
+            </div>
 
-        <!-- Toolbar -->
-        <div class="records-toolbar">
-            <div class="toolbar">
+            <div class="select-wrap">
                 <select id="filterType">
                     <option>All Scholarship Types</option>
                 </select>
-
-                <select id="filterStatus">
-                    <option>All Status</option>
-                </select>
-
-                <div class="search-wrap">
-                    <input type="text" placeholder="Search applicant...">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2">
-                        <circle cx="11" cy="11" r="8"/>
-                        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                    </svg>
-                </div>
+                <i data-lucide="chevron-down"></i>
             </div>
 
-            <button class="btn-export">
-                <i class='bx bx-export'></i>
+            <div class="select-wrap">
+                <select id="filterStatus">
+                    <option value="all">All Status</option>
+                    <option value="approved">Approved</option>
+                    <option value="rejected">Rejected</option>
+                </select>
+                <i data-lucide="chevron-down"></i>
+            </div>
+        </div>
+
+        <div style="display:flex; gap:10px;">
+            <button class="btn-primary" id="addRecordBtn">
+                <i data-lucide="plus"></i>
+                Add Record
+            </button>
+            <button class="btn-primary btn-export">
+                <i data-lucide="download"></i>
                 Export Records
             </button>
         </div>
+    </div>
 
-        <div class="table-card">
-        <!-- Table -->
+    <div class="table-card">
         <div class="table-wrap">
             <table class="records-table">
                 <thead>
@@ -52,13 +55,105 @@ include __DIR__ . '/../includes/header.php';
                         <th>Semester</th>
                         <th>SY</th>
                         <th>Date Evaluated</th>
-                        <th>Action</th>
+                        <th style="text-align:right;">Actions</th>
                     </tr>
                 </thead>
                 <tbody id="tableBody">
-                    <!-- Database -->
+                    <!-- Dynamic -->
                 </tbody>
             </table>
+        </div>
+    </div>
+</div>
+
+<!-- Add / Edit Record Modal -->
+<div class="custom-modal-overlay" id="recFormOverlay">
+    <div class="custom-modal-card">
+        <div class="custom-modal-header">
+            <div>
+                <h3 id="recFormTitle">Add Record</h3>
+                <p>Log evaluation record details.</p>
+            </div>
+            <button type="button" class="custom-modal-close" id="recFormCloseBtn"><i data-lucide="x"></i></button>
+        </div>
+        <form id="recForm">
+            <input type="hidden" id="recId" name="id">
+            <div class="custom-modal-body" style="display:flex; flex-direction:column; gap:14px;">
+                <div class="field">
+                    <label style="font-size:13px; font-weight:600; color:#374151;">Student ID <span style="color:red;">*</span></label>
+                    <input type="text" id="recStudentId" name="student_id" placeholder="20230001" required style="width:100%; height:40px; padding:0 12px; border:1px solid #d1d5db; border-radius:8px; outline:none;">
+                </div>
+                <div class="field">
+                    <label style="font-size:13px; font-weight:600; color:#374151;">Student Name <span style="color:red;">*</span></label>
+                    <input type="text" id="recName" name="name" placeholder="Juan Dela Cruz" required style="width:100%; height:40px; padding:0 12px; border:1px solid #d1d5db; border-radius:8px; outline:none;">
+                </div>
+                <div class="field">
+                    <label style="font-size:13px; font-weight:600; color:#374151;">Scholarship Type</label>
+                    <select id="recType" name="scholarship_type" style="width:100%; height:40px; padding:0 12px; border:1px solid #d1d5db; border-radius:8px; outline:none;">
+                        <option>Academic Merit</option>
+                        <option>Financial Need-Based</option>
+                        <option>Athletic</option>
+                        <option>Community Service</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label style="font-size:13px; font-weight:600; color:#374151;">Status</label>
+                    <select id="recStatus" name="status" style="width:100%; height:40px; padding:0 12px; border:1px solid #d1d5db; border-radius:8px; outline:none;">
+                        <option value="approved">Approved</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label style="font-size:13px; font-weight:600; color:#374151;">Semester</label>
+                    <input type="text" id="recSemester" name="semester" placeholder="First Semester" style="width:100%; height:40px; padding:0 12px; border:1px solid #d1d5db; border-radius:8px; outline:none;">
+                </div>
+                <div class="field">
+                    <label style="font-size:13px; font-weight:600; color:#374151;">School Year</label>
+                    <input type="text" id="recSy" name="sy" placeholder="2025-2026" style="width:100%; height:40px; padding:0 12px; border:1px solid #d1d5db; border-radius:8px; outline:none;">
+                </div>
+                <div class="field">
+                    <label style="font-size:13px; font-weight:600; color:#374151;">Remarks</label>
+                    <textarea id="recRemarks" name="remarks" placeholder="Evaluation notes..." style="width:100%; height:70px; padding:8px 12px; border:1px solid #d1d5db; border-radius:8px; outline:none; font-family:inherit;"></textarea>
+                </div>
+            </div>
+            <div class="custom-modal-footer">
+                <button type="button" class="btn-secondary" id="recFormCancelBtn">Cancel</button>
+                <button type="submit" class="btn-primary">Save Record</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- View Record Details Modal -->
+<div class="custom-modal-overlay" id="recViewOverlay">
+    <div class="custom-modal-card sm">
+        <div class="custom-modal-header">
+            <div>
+                <h3>Record Archive Details</h3>
+                <p>Full evaluation outcome summary.</p>
+            </div>
+            <button type="button" class="custom-modal-close" id="recViewCloseBtn"><i data-lucide="x"></i></button>
+        </div>
+        <div class="custom-modal-body" id="recViewBody"></div>
+    </div>
+</div>
+
+<!-- Delete Confirm Modal -->
+<div class="custom-modal-overlay" id="recDeleteOverlay">
+    <div class="custom-modal-card sm">
+        <div class="custom-modal-header">
+            <div>
+                <h3>Delete Record</h3>
+                <p>Confirm archive record removal.</p>
+            </div>
+            <button type="button" class="custom-modal-close" id="recDeleteCloseBtn"><i data-lucide="x"></i></button>
+        </div>
+        <div class="custom-modal-body">
+            <p style="font-size:14px; color:#4b5563;">Are you sure you want to delete evaluation record for <strong id="recDeleteTarget"></strong>?</p>
+        </div>
+        <div class="custom-modal-footer">
+            <button type="button" class="btn-secondary" id="recDeleteCancelBtn">Cancel</button>
+            <button type="button" class="btn-danger" id="recDeleteConfirmBtn">Delete Record</button>
         </div>
     </div>
 </div>

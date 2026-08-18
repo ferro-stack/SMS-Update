@@ -8,39 +8,42 @@
   }
 
 
-/* ---------------- Summary cards ---------------- */
 .summary-row {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
-  margin-bottom: 32px;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 720px) {
+  .summary-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 .summary-card {
-  background:#ffff;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  padding: 18px 20px;
-  border-radius: 15px;
-
+  background: #fff;
+  border: 1px solid var(--slate-200, #e2e8f0);
+  border-radius: 12px;
+  padding: 16px 18px;
 }
 
 .summary-card .label {
-  color: #6B7280;
-    font-size: 14px;
-    font-weight: 500;
+  color: #6b7280;
+  font-size: 14px;
+  font-weight: 500;
 }
 
 .summary-card .value {
   font-size: 24px;
   font-weight: 700;
-  color: var(--slate-900);
+  color: #238f54;
   margin-top: 4px;
 }
 
-.summary-card.eligible .value { color:rgb(102, 224, 91); }
-.summary-card.at-risk .value { color:#d3a033; }
-.summary-card.terminated .value { color:#c02424; }
+.summary-card.eligible .value { color: #238f54; }
+.summary-card.at-risk .value { color: #dc2626; }
+.summary-card.terminated .value { color: #dc2626; }
 
 /* ---------------- Toolbar ---------------- */
 .toolbar { display: flex; gap: 12px; margin-bottom: 18px; align-items: center; }
@@ -209,8 +212,9 @@
 .check-icon.fail { background: var(--status-terminated-bg); color: var(--status-terminated); }
 
 .remarks-box {
-  border-left: 3px solid var(--brass-500);
-  background: var(--paper-100);
+  background: #f8faf9;
+  border: 1px solid #e0e8e4;
+  border-radius: 8px;
   padding: 14px 16px;
   margin-bottom: 20px;
 }
@@ -239,10 +243,28 @@
   background: var(--paper-050);
 }
 
-.btn-primary { background: var(--ink-900); color: var(--paper-050); border-color: var(--ink-900); }
-.btn-primary:disabled { background: var(--line); border-color: var(--line); color: var(--ink-600); cursor: not-allowed; }
-.btn-ghost { color: var(--ink-900); }
-.btn-ghost:hover { background: var(--paper-100); }
+.btn-primary,
+#renewBtn {
+  background: #134e2a !important;
+  color: #ffffff !important;
+  border: 1px solid #134e2a !important;
+  font-weight: 600 !important;
+}
+
+.btn-primary:hover,
+#renewBtn:hover {
+  background: #1b6336 !important;
+  color: #ffffff !important;
+  border-color: #1b6336 !important;
+}
+
+.btn-primary:disabled,
+#renewBtn:disabled {
+  background: #e2e8f0 !important;
+  border-color: #cbd5e1 !important;
+  color: #94a3b8 !important;
+  cursor: not-allowed !important;
+}
 
 @media (max-width: 900px) {
   .app-shell { grid-template-columns: 1fr; }

@@ -1,22 +1,38 @@
 <?php
+require_once __DIR__ . '/../config/config.php';
 
+$page_title = "Applicants";
 $page_css = "applicants.css";
 $page_js = "applicants.js";
 
 include __DIR__ . '/../includes/header.php';
 ?>
 
-  <div class="top-nav">
-    <h2>Applicants</h2>
-  <?php include __DIR__ . '/../includes/navbar.php'; ?>
-</div>
-
-
     <div class="page">
-        <div class="table-header">
-            <button class="btn-primary btn-add-applicant" id="openBtn">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 11v6M19 14h6"/></svg>
-              Add Applicant
+        <div class="table-header-toolbar">
+            <div class="toolbar">
+                <div class="search-wrap">
+                    <input id="searchInput" placeholder="Search applicant...">
+                    <i data-lucide="search"></i>
+                </div>
+                <div class="select-wrap">
+                    <select id="filterType"><option value="all">All Scholarship Types</option></select>
+                    <i data-lucide="chevron-down"></i>
+                </div>
+                <div class="select-wrap">
+                    <select id="filterStatus">
+                        <option value="all">All Status</option>
+                        <option value="pending">Pending</option>
+                        <option value="approved">Approved</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
+                    <i data-lucide="chevron-down"></i>
+                </div>
+            </div>
+
+            <button class="btn-primary" id="openBtn">
+                <i data-lucide="user-plus"></i>
+                Add Applicant
             </button>
         </div>
        <div class="table-wrap">
@@ -87,7 +103,7 @@ include __DIR__ . '/../includes/header.php';
             </div>
             <div class="field">
               <label>Phone number <span class="req">*</span></label>
-              <input type="text" name="phone" placeholder="09XX XXX XXXX" data-field="phone" inputmode="numeric" maxlength="11" required></div>
+              <input type="text" name="phone" placeholder="0900 000 0000" data-field="phone" inputmode="tel" maxlength="15" required></div>
             <div class="field">
               <label>Date of birth <span class="req">*</span></label>
               <input type="date" name="birthdate" data-field="birthdate" required></div>
@@ -215,20 +231,16 @@ include __DIR__ . '/../includes/header.php';
 
       <!-- Footer -->
       <div class="applicant-modal-footer" id="modalFooter">
-        <button class="btn-back" id="backBtn">
+        <button type="button" class="btn-back" id="backBtn">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
           Back
         </button>
-        <button
-    type="submit"
-    class="btn-next"
-    id="nextBtn">
-    Submit Application
-
+        <button type="submit" class="btn-next" id="nextBtn">
+          Submit Application
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
         </button>
-</form>
       </div>
+    </form>
 
     </div>
 
@@ -247,9 +259,6 @@ include __DIR__ . '/../includes/header.php';
         </button>
       </div>
       <div class="modal-body" id="viewBody"></div>
-      <div class="modal-footer modal-footer-end">
-        <button class="btn-next" id="viewCloseBtn2">Close</button>
-      </div>
     </div>
   </div>
 
@@ -272,5 +281,27 @@ include __DIR__ . '/../includes/header.php';
     </div>
   </div>
 
+
+  <!-- Delete Confirm Modal -->
+  <div class="custom-modal-overlay" id="deleteConfirmOverlay">
+    <div class="custom-modal-card sm">
+      <div class="custom-modal-header">
+        <div>
+          <h3>Confirm Deletion</h3>
+          <p>This action cannot be undone.</p>
+        </div>
+        <button type="button" class="custom-modal-close" id="deleteCloseBtn">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <div class="custom-modal-body">
+        <p style="font-size:14px; color:#4b5563;">Are you sure you want to delete applicant <strong id="deleteTargetName"></strong>?</p>
+      </div>
+      <div class="custom-modal-footer">
+        <button type="button" class="btn-secondary" id="deleteCancelBtn">Cancel</button>
+        <button type="button" class="btn-danger" id="deleteConfirmBtn">Delete Applicant</button>
+      </div>
+    </div>
+  </div>
 
  <?php include __DIR__ . '/../includes/footer.php'; ?>

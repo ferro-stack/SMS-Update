@@ -1,68 +1,312 @@
-// ===========================
-// IMPORT GRADES
-// ===========================
+"use strict";
 
-const gradeFile = document.getElementById("gradeFile");
-const gradeBtn = document.getElementById("gradeBtn");
-const gradeFileName = document.getElementById("gradeFileName");
-const gradeDeleteBtn = document.getElementById("gradeDeleteBtn");
+document.addEventListener("DOMContentLoaded", () => {
+    const API_PATH = (typeof window !== "undefined" && window.API_BASE) ? window.API_BASE : "api";
 
-if (gradeBtn && gradeFile && gradeFileName && gradeDeleteBtn) {
+    let importedFilesData = [];
+    let activePendingDelete = null;
 
-    gradeBtn.addEventListener("click", function () {
-        gradeFile.click();
-    });
+    // File Input Elements
+    const gradeFile = document.getElementById("gradeFile");
+    const gradeBtn = document.getElementById("gradeBtn");
+    const gradeImportBtn = document.getElementById("gradeImportBtn");
+    const gradeFileName = document.getElementById("gradeFileName");
+    const gradeDeleteBtn = document.getElementById("gradeDeleteBtn");
+    const gradeFilesCard = document.getElementById("gradeFilesCard");
+    const gradeCardHeader = document.getElementById("gradeCardHeader");
 
-    gradeFile.addEventListener("change", function () {
+    const enrollmentFile = document.getElementById("enrollmentFile");
+    const enrollmentBtn = document.getElementById("enrollmentBtn");
+    const enrollmentImportBtn = document.getElementById("enrollmentImportBtn");
+    const enrollmentFileName = document.getElementById("enrollmentFileName");
+    const enrollmentDeleteBtn = document.getElementById("enrollmentDeleteBtn");
+    const enrollmentFilesCard = document.getElementById("enrollmentFilesCard");
+    const enrollmentCardHeader = document.getElementById("enrollmentCardHeader");
 
-        if (this.files.length > 0) {
-            gradeFileName.textContent = this.files[0].name;
-            gradeDeleteBtn.style.display = "block";
-        } else {
+    // Modal Elements
+    const fileDetailsModal = document.getElementById("fileDetailsModal");
+    const closeDetailsModalBtn = document.getElementById("closeDetailsModalBtn");
+    const closeDetailsBtn = document.getElementById("closeDetailsBtn");
+
+    const deleteImportModal = document.getElementById("deleteImportModal");
+    const closeDeleteModalBtn = document.getElementById("closeDeleteModalBtn");
+    const cancelDeleteBtn = document.getElementById("cancelDeleteBtn");
+    const confirmDeleteBtn = document.getElementById("confirmDeleteBtn");
+
+    // ==========================================
+    // 1. COLLAPSIBLE CARD TOGGLES
+    // ==========================================
+    if (gradeCardHeader && gradeFilesCard) {
+        gradeCardHeader.addEventListener("click", () => {
+            gradeFilesCard.classList.toggle("collapsed");
+        });
+    }
+
+    if (enrollmentCardHeader && enrollmentFilesCard) {
+        enrollmentCardHeader.addEventListener("click", () => {
+            enrollmentFilesCard.classList.toggle("collapsed");
+        });
+    }
+
+    // ==========================================
+    // 2. FILE SELECTION HANDLERS
+    // ==========================================
+    if (gradeBtn && gradeFile && gradeFileName && gradeDeleteBtn) {
+        gradeBtn.addEventListener("click", () => gradeFile.click());
+        gradeFile.addEventListener("change", function () {
+            if (this.files && this.files.length > 0) {
+                gradeFileName.textContent = this.files[0].name;
+                gradeDeleteBtn.style.display = "inline-block";
+            } else {
+                gradeFileName.textContent = "No file selected";
+                gradeDeleteBtn.style.display = "none";
+            }
+        });
+        gradeDeleteBtn.addEventListener("click", () => {
+            gradeFile.value = "";
             gradeFileName.textContent = "No file selected";
             gradeDeleteBtn.style.display = "none";
-        }
+        });
+    }
 
-    });
-
-    gradeDeleteBtn.addEventListener("click", function () {
-        gradeFile.value = "";
-        gradeFileName.textContent = "No file selected";
-        gradeDeleteBtn.style.display = "none";
-    });
-
-}
-// ===========================
-// IMPORT ENROLLMENT
-// ===========================
-
-const enrollmentFile = document.getElementById("enrollmentFile");
-const enrollmentBtn = document.getElementById("enrollmentBtn");
-const enrollmentFileName = document.getElementById("enrollmentFileName");
-const enrollmentDeleteBtn = document.getElementById("enrollmentDeleteBtn");
-
-if (enrollmentBtn && enrollmentFile && enrollmentFileName && enrollmentDeleteBtn) {
-
-    enrollmentBtn.addEventListener("click", function () {
-        enrollmentFile.click();
-    });
-
-    enrollmentFile.addEventListener("change", function () {
-
-        if (this.files.length > 0) {
-            enrollmentFileName.textContent = this.files[0].name;
-            enrollmentDeleteBtn.style.display = "block";
-        } else {
+    if (enrollmentBtn && enrollmentFile && enrollmentFileName && enrollmentDeleteBtn) {
+        enrollmentBtn.addEventListener("click", () => enrollmentFile.click());
+        enrollmentFile.addEventListener("change", function () {
+            if (this.files && this.files.length > 0) {
+                enrollmentFileName.textContent = this.files[0].name;
+                enrollmentDeleteBtn.style.display = "inline-block";
+            } else {
+                enrollmentFileName.textContent = "No file selected";
+                enrollmentDeleteBtn.style.display = "none";
+            }
+        });
+        enrollmentDeleteBtn.addEventListener("click", () => {
+            enrollmentFile.value = "";
             enrollmentFileName.textContent = "No file selected";
             enrollmentDeleteBtn.style.display = "none";
+        });
+    }
+
+    // ==========================================
+    // 3. IMPORT UPLOAD SUBMISSION
+    // ==========================================
+    async function handleImportSubmit(fileInput, type) {
+        if (!fileInput.files || fileInput.files.length === 0) {
+            alert(`Please select an academic or enrollment file to import.`);
+            return;
         }
 
-    });
+        const formData = new FormData();
+        formData.append("file", fileInput.files[0]);
+        formData.append("type", type);
 
-    enrollmentDeleteBtn.addEventListener("click", function () {
-        enrollmentFile.value = "";
-        enrollmentFileName.textContent = "No file selected";
-        enrollmentDeleteBtn.style.display = "none";
-    });
+        try {
+            const res = await fetch(`${API_PATH}/import_data.php`, {
+                method: "POST",
+                body: formData
+            });
+            const json = await res.json();
+            if (json.success) {
+                alert(json.message || "File imported successfully!");
+                fileInput.value = "";
+                if (type === 'grades') {
+                    gradeFileName.textContent = "No file selected";
+                    gradeDeleteBtn.style.display = "none";
+                    gradeFilesCard.classList.remove("collapsed");
+                } else {
+                    enrollmentFileName.textContent = "No file selected";
+                    enrollmentDeleteBtn.style.display = "none";
+                    enrollmentFilesCard.classList.remove("collapsed");
+                }
+                loadImportedFilesList();
+            } else {
+                alert(json.message || "Failed to import file.");
+            }
+        } catch (err) {
+            console.error("Import error:", err);
+            alert("Error connecting to server during import.");
+        }
+    }
 
-}
+    if (gradeImportBtn) {
+        gradeImportBtn.addEventListener("click", () => handleImportSubmit(gradeFile, "grades"));
+    }
+    if (enrollmentImportBtn) {
+        enrollmentImportBtn.addEventListener("click", () => handleImportSubmit(enrollmentFile, "enrollment"));
+    }
+
+    // ==========================================
+    // 4. LOAD & RENDER IMPORTED FILES LIST
+    // ==========================================
+    async function loadImportedFilesList() {
+        try {
+            const res = await fetch(`${API_PATH}/list_imports.php`);
+            const json = await res.json();
+            if (json.success && json.data) {
+                importedFilesData = json.data;
+                renderTables();
+            }
+        } catch (e) {
+            console.error("Failed to load imported files:", e);
+        }
+    }
+
+    function renderTables() {
+        const gradeFiles = importedFilesData.filter(f => f.fileType === 'grades');
+        const enrollmentFiles = importedFilesData.filter(f => f.fileType === 'enrollment');
+
+        renderTableSection("gradeFilesBody", gradeFiles, "No grade files imported yet.");
+        renderTableSection("enrollmentFilesBody", enrollmentFiles, "No enrollment files imported yet.");
+
+        if (typeof lucide !== "undefined") {
+            lucide.createIcons();
+        }
+    }
+
+    function renderTableSection(tbodyId, fileList, emptyMsg) {
+        const tbody = document.getElementById(tbodyId);
+        if (!tbody) return;
+
+        if (fileList.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="3" class="empty-state">${emptyMsg}</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = fileList.map(file => `
+            <tr>
+                <td>
+                    <div class="file-name-cell">
+                        <i data-lucide="${file.fileName.endsWith('.csv') ? 'file-text' : 'file-spreadsheet'}"></i>
+                        <span>${escapeHtml(file.fileName)}</span>
+                    </div>
+                </td>
+                <td class="date-cell">${escapeHtml(file.formattedDate)}</td>
+                <td class="text-center">
+                    <div class="action-buttons">
+                        <button type="button" class="btn-action btn-view" data-action="view" data-id="${file.id}" title="View File Details">
+                            <i data-lucide="eye"></i>
+                        </button>
+                        <button type="button" class="btn-action btn-delete" data-action="delete" data-id="${file.id}" title="Delete File Record">
+                            <i data-lucide="trash-2"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `).join("");
+
+        tbody.querySelectorAll("button[data-action]").forEach(btn => {
+            btn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                const action = btn.dataset.action;
+                const id = parseInt(btn.dataset.id, 10);
+                const targetFile = importedFilesData.find(f => f.id === id);
+                if (!targetFile) return;
+
+                if (action === "view") {
+                    showFileDetailsModal(targetFile);
+                } else if (action === "delete") {
+                    promptDeleteFileModal(targetFile);
+                }
+            });
+        });
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+    }
+
+    function formatBytes(bytes, decimals = 1) {
+        if (!bytes || bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const dm = decimals < 0 ? 0 : decimals;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+    }
+
+    // ==========================================
+    // 5. VIEW FILE DETAILS MODAL
+    // ==========================================
+    function showFileDetailsModal(file) {
+        const modalFileName = document.getElementById("modalFileName");
+        const modalFileType = document.getElementById("modalFileType");
+        const modalFileDate = document.getElementById("modalFileDate");
+        const modalRecordsCount = document.getElementById("modalRecordsCount");
+        const modalImportedBy = document.getElementById("modalImportedBy");
+
+        if (modalFileName) modalFileName.textContent = file.fileName;
+        if (modalFileType) modalFileType.textContent = file.fileType === 'grades' ? 'Academic Grade Records' : 'Enrollment Records';
+        if (modalFileDate) modalFileDate.textContent = file.formattedDate;
+        if (modalRecordsCount) modalRecordsCount.textContent = `${file.recordsCount} Records (${formatBytes(file.fileSize)})`;
+        if (modalImportedBy) modalImportedBy.textContent = file.importedBy || 'Registrar Staff';
+
+        if (fileDetailsModal) fileDetailsModal.classList.add("open");
+    }
+
+    function closeFileDetailsModal() {
+        if (fileDetailsModal) fileDetailsModal.classList.remove("open");
+    }
+
+    if (closeDetailsModalBtn) closeDetailsModalBtn.addEventListener("click", closeFileDetailsModal);
+    if (closeDetailsBtn) closeDetailsBtn.addEventListener("click", closeFileDetailsModal);
+    if (fileDetailsModal) {
+        fileDetailsModal.addEventListener("click", (e) => {
+            if (e.target === fileDetailsModal) closeFileDetailsModal();
+        });
+    }
+
+    // ==========================================
+    // 6. DELETE CONFIRMATION MODAL
+    // ==========================================
+    function promptDeleteFileModal(file) {
+        activePendingDelete = file;
+        const namePreview = document.getElementById("deleteFileNamePreview");
+        const datePreview = document.getElementById("deleteFileDatePreview");
+        if (namePreview) namePreview.textContent = file.fileName;
+        if (datePreview) datePreview.textContent = `Imported on ${file.formattedDate}`;
+
+        if (deleteImportModal) deleteImportModal.classList.add("open");
+    }
+
+    function closeDeleteModal() {
+        activePendingDelete = null;
+        if (deleteImportModal) deleteImportModal.classList.remove("open");
+    }
+
+    if (closeDeleteModalBtn) closeDeleteModalBtn.addEventListener("click", closeDeleteModal);
+    if (cancelDeleteBtn) cancelDeleteBtn.addEventListener("click", closeDeleteModal);
+    if (deleteImportModal) {
+        deleteImportModal.addEventListener("click", (e) => {
+            if (e.target === deleteImportModal) closeDeleteModal();
+        });
+    }
+
+    if (confirmDeleteBtn) {
+        confirmDeleteBtn.addEventListener("click", async () => {
+            if (!activePendingDelete) return;
+            try {
+                const res = await fetch(`${API_PATH}/delete_import.php?id=${activePendingDelete.id}`, {
+                    method: "POST"
+                });
+                const json = await res.json();
+                if (json.success) {
+                    closeDeleteModal();
+                    loadImportedFilesList();
+                } else {
+                    alert(json.message || "Failed to delete file record.");
+                }
+            } catch (err) {
+                console.error("Delete error:", err);
+                alert("Error connecting to server during delete.");
+            }
+        });
+    }
+
+    // Initialize list load
+    loadImportedFilesList();
+});

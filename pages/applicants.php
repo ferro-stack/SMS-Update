@@ -1,9 +1,10 @@
 <?php
 require_once __DIR__ . '/../config/config.php';
 
+$current_page = 'applicants';
 $page_title = "Applicants";
-$page_css = "applicants.css";
-$page_js = "applicants.js";
+$page_css = "applicants.css?v=" . time();
+$page_js = "applicants.js?v=" . time();
 
 include __DIR__ . '/../includes/header.php';
 ?>
@@ -23,6 +24,8 @@ include __DIR__ . '/../includes/header.php';
                     <select id="filterStatus">
                         <option value="all">All Status</option>
                         <option value="pending">Pending</option>
+                        <option value="review">Review</option>
+                        <option value="interview">Interview</option>
                         <option value="approved">Approved</option>
                         <option value="rejected">Rejected</option>
                     </select>
@@ -149,8 +152,12 @@ include __DIR__ . '/../includes/header.php';
           <div class="grid-2">
             <div class="field">
               <label>Scholarship type <span class="req">*</span></label>
-              <select data-field="scholarshipType" name="scholarship_type"required >
+              <select data-field="scholarshipType" name="scholarship_type" required>
                 <option value="">Select type</option>
+                <option>CMSP (CHED Merit Scholarship Program)</option>
+                <option>TDP (Tulong Dunong Program)</option>
+                <option>TES (Tertiary Education Subsidy)</option>
+                <option>COSCHO (Scholarship for Coconut Farmers and Their Families)</option>
                 <option>Academic Merit</option>
                 <option>Financial Need-Based</option>
                 <option>Athletic</option>

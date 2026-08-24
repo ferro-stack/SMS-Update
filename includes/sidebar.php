@@ -1,5 +1,27 @@
 <?php
-$current_page = basename($_SERVER['PHP_SELF'], '.php');
+if (!isset($current_page) || empty($current_page) || $current_page === 'index') {
+    $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+    $foundPage = false;
+    foreach ($backtrace as $trace) {
+        if (!empty($trace['file'])) {
+            $base = basename($trace['file'], '.php');
+            if ($base !== 'header' && $base !== 'sidebar' && $base !== 'footer' && $base !== 'index') {
+                $current_page = $base;
+                $foundPage = true;
+                break;
+            }
+        }
+    }
+    if (!$foundPage) {
+        $uriPath = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH);
+        $cleanPath = trim(str_replace('/sms', '', $uriPath), '/');
+        if (!empty($cleanPath) && $cleanPath !== 'index.php') {
+            $current_page = basename($cleanPath, '.php');
+        } else {
+            $current_page = 'dashboard';
+        }
+    }
+}
 ?>
 <nav class="sidebar">
     <header>
@@ -17,7 +39,7 @@ $current_page = basename($_SERVER['PHP_SELF'], '.php');
     <div class="menu-bar">
         <div class="menu">
             <ul class="menu-links">
-                <li class="nav-link <?= ($current_page === 'dashboard' || $current_page === 'index') ? 'active' : '' ?>">
+                <li class="nav-link <?= ($current_page === 'dashboard') ? 'active' : '' ?>">
                     <a href="<?= SITE_BASE ?>/dashboard">
                         <i data-lucide="layout-dashboard"></i>
                         <span class="text nav-text">Dashboard</span>

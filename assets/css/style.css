@@ -603,10 +603,10 @@ tbody tr:hover {
 
 /* Action Cell & Icon-Only Buttons */
 .actions-cell {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  justify-content: flex-end;
+  text-align: right !important;
+  white-space: nowrap !important;
+  display: table-cell !important;
+  vertical-align: middle !important;
 }
 
 .btn-icon-action {
@@ -1125,6 +1125,7 @@ input[type="number"],
 input[type="date"] {
   font-family: 'Geist Mono', monospace !important;
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 

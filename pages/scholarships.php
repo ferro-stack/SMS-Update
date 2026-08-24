@@ -1,7 +1,8 @@
 <?php
+$current_page = 'scholarships';
 $page_title = "Scholarships";
-$page_css = "scholarships.css";
-$page_js = "scholarships.js";
+$page_css = "scholarships.css?v=" . time();
+$page_js = "scholarships.js?v=" . time();
 
 include __DIR__ . '/../includes/header.php';
 ?>
@@ -42,7 +43,7 @@ include __DIR__ . '/../includes/header.php';
                     <tr>
                         <th>Scholarship Name</th>
                         <th>Type</th>
-                        <th>Slots</th>
+                        <th style="white-space:nowrap; min-width:120px;">Slots</th>
                         <th>Status</th>
                         <th style="text-align:right;">Actions</th>
                     </tr>
@@ -81,6 +82,8 @@ include __DIR__ . '/../includes/header.php';
                     <select id="schType" name="type" required style="width:100%; height:40px; padding:0 12px; border:1px solid #d1d5db; border-radius:8px; outline:none;">
                         <option>Academic Merit</option>
                         <option>Financial Need-Based</option>
+                        <option>Government Subsidy</option>
+                        <option>Special Program</option>
                         <option>Athletic</option>
                         <option>Community Service</option>
                     </select>

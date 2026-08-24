@@ -5,30 +5,9 @@ const STEPS = [
     { key: "scholarship", label: "Scholarship" },
     { key: "documents", label: "Documents" },
 ];
-const overlay = document.getElementById("overlay");
-const openBtn = document.getElementById("openBtn");
-const closeBtn = document.getElementById("closeBtn");
-const doneBtn = document.getElementById("doneBtn");
-const backBtn = document.getElementById("backBtn");
-const nextBtn = document.getElementById("nextBtn");
-const progressBar = document.getElementById("progressBar");
-const stepCounter = document.getElementById("stepCounter");
-const modalFooter = document.getElementById("modalFooter");
-const successMsg = document.getElementById("successMsg");
-const viewOverlay = document.getElementById("viewOverlay");
-const viewCloseBtn = document.getElementById("viewCloseBtn");
-const viewCloseBtn2 = document.getElementById("viewCloseBtn2");
-const viewBody = document.getElementById("viewBody");
-const deleteConfirmOverlay = document.getElementById("deleteConfirmOverlay");
-const deleteCloseBtn = document.getElementById("deleteCloseBtn");
-const deleteCancelBtn = document.getElementById("deleteCancelBtn");
-const deleteConfirmBtn = document.getElementById("deleteConfirmBtn");
-const deleteTargetName = document.getElementById("deleteTargetName");
-const searchInput = document.getElementById("searchInput");
-const filterType = document.getElementById("filterType");
-const filterStatus = document.getElementById("filterStatus");
-const tableBody = document.getElementById("tableBody");
-const emptyState = document.getElementById("emptyState");
+function getEl(id) {
+    return document.getElementById(id);
+}
 let currentIndex = 0;
 let furthestIndex = 0;
 const formData = {};
@@ -64,6 +43,7 @@ function formatPhoneNumber(val) {
 }
 async function loadTableData() {
     try {
+        const filterStatus = getEl("filterStatus");
         const statusVal = filterStatus ? filterStatus.value : 'all';
         loadedApplicants = await window.apiListApplicants(statusVal === 'all' ? '' : statusVal);
         renderTable();
@@ -73,6 +53,11 @@ async function loadTableData() {
     }
 }
 function renderTable() {
+    const tableBody = getEl("tableBody");
+    const emptyState = getEl("emptyState");
+    const searchInput = getEl("searchInput");
+    const filterType = getEl("filterType");
+    const filterStatus = getEl("filterStatus");
     if (!tableBody)
         return;
     const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
@@ -86,21 +71,27 @@ function renderTable() {
     });
     tableBody.innerHTML = '';
     if (filtered.length === 0) {
-        if (emptyState)
+        if (emptyState) {
             emptyState.style.display = 'block';
+            emptyState.classList.add('show');
+        }
         return;
     }
-    if (emptyState)
+    if (emptyState) {
         emptyState.style.display = 'none';
+        emptyState.classList.remove('show');
+    }
     filtered.forEach(app => {
         const tr = document.createElement('tr');
-        const statusBadgeClass = app.status === 'approved' ? 'badge-approved' : (app.status === 'rejected' ? 'badge-rejected' : 'badge-pending');
+        const statusLower = (app.status || '').toLowerCase();
+        const statusBadgeClass = statusLower === 'approved' ? 'badge-approved' : (statusLower === 'rejected' ? 'badge-rejected' : 'badge-pending');
+        const formattedStatus = app.status ? app.status.charAt(0).toUpperCase() + app.status.slice(1) : 'Pending';
         tr.innerHTML = `
       <td><strong class="font-mono">${app.studentId || '-'}</strong></td>
       <td>${app.name}</td>
       <td>${app.scholarshipType}</td>
-      <td><span class="status-badge ${statusBadgeClass}">${app.status}</span></td>
-      <td><span class="font-mono">${(app.createdAt || '').split(' ')[0] || 'Today'}</span></td>
+      <td><span class="status-badge ${statusBadgeClass}">${formattedStatus}</span></td>
+      <td><span class="font-mono">${(app.createdAt || '').split(' ')[0] || '2026-08-10'}</span></td>
       <td class="actions-cell">
         <button type="button" class="btn-icon-action edit" title="Edit Applicant" onclick="editApplicant(event, ${app.id})">
           <i data-lucide="pencil"></i>
@@ -117,9 +108,13 @@ function renderTable() {
         lucide.createIcons();
 }
 function openViewModal(app) {
+    const viewOverlay = getEl("viewOverlay");
+    const viewBody = getEl("viewBody");
     if (!viewOverlay || !viewBody)
         return;
-    const statusClass = app.status === 'approved' ? 'badge-approved' : (app.status === 'rejected' ? 'badge-rejected' : 'badge-pending');
+    const statusLower = (app.status || '').toLowerCase();
+    const statusClass = statusLower === 'approved' ? 'badge-approved' : (statusLower === 'rejected' ? 'badge-rejected' : 'badge-pending');
+    const formattedStatus = app.status ? app.status.charAt(0).toUpperCase() + app.status.slice(1) : 'Pending';
     viewBody.innerHTML = `
     <div class="view-detail-grid">
       <div class="detail-item">
@@ -128,7 +123,7 @@ function openViewModal(app) {
       </div>
       <div class="detail-item">
         <span class="detail-label">Status</span>
-        <span class="status-badge ${statusClass}">${app.status}</span>
+        <span class="status-badge ${statusClass}">${formattedStatus}</span>
       </div>
       <div class="detail-item full-width">
         <span class="detail-label">Full Name</span>
@@ -168,6 +163,7 @@ function openViewModal(app) {
     viewOverlay.classList.add("open");
 }
 function closeViewModal() {
+    const viewOverlay = getEl("viewOverlay");
     if (viewOverlay)
         viewOverlay.classList.remove("open");
 }
@@ -215,7 +211,7 @@ window.editApplicant = async function (event, id) {
             fType.value = app.scholarshipType || '';
         if (fEssay)
             fEssay.value = app.essay || '';
-        openModal();
+        openModal(true);
     }
     catch (e) {
         alert("Could not load applicant data for edit.");
@@ -227,45 +223,21 @@ window.confirmDeleteApplicant = function (event, id) {
     if (!app)
         return;
     deletingApplicantId = id;
+    const deleteTargetName = getEl("deleteTargetName");
+    const deleteConfirmOverlay = getEl("deleteConfirmOverlay");
     if (deleteTargetName)
         deleteTargetName.textContent = app.name;
     if (deleteConfirmOverlay)
         deleteConfirmOverlay.classList.add("open");
 };
 function closeDeleteModal() {
+    const deleteConfirmOverlay = getEl("deleteConfirmOverlay");
     if (deleteConfirmOverlay)
         deleteConfirmOverlay.classList.remove("open");
     deletingApplicantId = null;
 }
-if (deleteConfirmBtn) {
-    deleteConfirmBtn.addEventListener("click", async () => {
-        if (!deletingApplicantId)
-            return;
-            const apiPath = (typeof window !== "undefined" && window.API_BASE) ? window.API_BASE : "api";
-            const res = await fetch(`${apiPath}/delete_applicant.php?id=${deletingApplicantId}`, { method: "POST" });
-            const json = await res.json();
-            if (json.success) {
-                closeDeleteModal();
-                loadTableData();
-            }
-            else {
-                alert(json.message || "Failed to delete applicant.");
-            }
-        }
-        catch (e) {
-            alert("Server error when deleting applicant.");
-        }
-    });
-}
-if (deleteCloseBtn)
-    deleteCloseBtn.addEventListener("click", closeDeleteModal);
-if (deleteCancelBtn)
-    deleteCancelBtn.addEventListener("click", closeDeleteModal);
-if (viewCloseBtn)
-    viewCloseBtn.addEventListener("click", closeViewModal);
-if (viewCloseBtn2)
-    viewCloseBtn2.addEventListener("click", closeViewModal);
 function renderProgress() {
+    const progressBar = getEl("progressBar");
     if (!progressBar)
         return;
     progressBar.innerHTML = "";
@@ -301,6 +273,10 @@ function renderProgress() {
     });
 }
 function render() {
+    const stepCounter = getEl("stepCounter");
+    const modalFooter = getEl("modalFooter");
+    const backBtn = getEl("backBtn");
+    const nextBtn = getEl("nextBtn");
     document.querySelectorAll(".step-panel").forEach(panel => {
         panel.classList.remove("active");
     });
@@ -331,6 +307,8 @@ function render() {
         modalFooter.style.display = "flex";
 }
 function showSuccess() {
+    const successMsg = getEl("successMsg");
+    const modalFooter = getEl("modalFooter");
     document.querySelectorAll(".step-panel").forEach(panel => panel.classList.remove("active"));
     const successPanel = document.querySelector('.step-panel[data-step="success"]');
     if (successPanel)
@@ -341,11 +319,30 @@ function showSuccess() {
     if (successMsg)
         successMsg.textContent = `${name} has been successfully ${editingApplicantId ? "updated" : "added"} in the system.`;
 }
-function openModal() {
+function openModal(isEdit = false) {
+    const overlay = getEl("overlay");
+    if (!isEdit) {
+        editingApplicantId = null;
+        currentIndex = 0;
+        furthestIndex = 0;
+        document.querySelectorAll("[data-field]").forEach(el => {
+            el.value = "";
+            el.classList.remove("error");
+        });
+        document.querySelectorAll(".hint").forEach(el => {
+            el.textContent = "PDF, JPG, or PNG · max 5MB";
+        });
+        document.querySelectorAll(".upload-action").forEach(el => {
+            el.textContent = "Upload";
+        });
+        Object.keys(formData).forEach(k => delete formData[k]);
+    }
+    render();
     if (overlay)
         overlay.classList.add("open");
 }
 function closeModal() {
+    const overlay = getEl("overlay");
     if (overlay)
         overlay.classList.remove("open");
     currentIndex = 0;
@@ -353,6 +350,7 @@ function closeModal() {
     editingApplicantId = null;
     document.querySelectorAll("[data-field]").forEach(el => {
         el.value = "";
+        el.classList.remove("error");
     });
     document.querySelectorAll(".hint").forEach(el => {
         el.textContent = "PDF, JPG, or PNG · max 5MB";
@@ -364,121 +362,183 @@ function closeModal() {
     render();
     loadTableData();
 }
-document.querySelectorAll("input[data-field], select[data-field], textarea[data-field]").forEach(el => {
-    el.addEventListener("change", () => {
-        const key = el.dataset.field;
-        if (!key)
-            return;
-        if (el instanceof HTMLInputElement && el.type === "file") {
-            const file = el.files ? el.files[0] : null;
-            formData[key] = file || null;
-            const hint = document.querySelector(`.hint[data-hint="${key}"]`);
-            const action = document.querySelector(`.upload-action[data-action="${key}"]`);
-            if (file) {
-                if (hint)
-                    hint.textContent = file.name;
-                if (action)
-                    action.textContent = "Replace";
-            }
-            else {
-                if (hint)
-                    hint.textContent = "PDF, JPG, or PNG · max 5MB";
-                if (action)
-                    action.textContent = "Upload";
-            }
-        }
-        else {
-            formData[key] = el.value;
+function initApplicantsPage() {
+    document.addEventListener("click", (e) => {
+        const target = e.target;
+        if (target && target.closest("#openBtn, #emptyStateAddBtn")) {
+            e.preventDefault();
+            openModal(false);
         }
     });
-});
-if (openBtn)
-    openBtn.addEventListener("click", () => {
-        editingApplicantId = null;
-        openModal();
-    });
-if (closeBtn)
-    closeBtn.addEventListener("click", closeModal);
-if (doneBtn)
-    doneBtn.addEventListener("click", closeModal);
-if (backBtn) {
-    backBtn.addEventListener("click", () => {
-        if (currentIndex > 0) {
-            currentIndex--;
-            render();
-        }
-    });
-}
-if (nextBtn) {
-    nextBtn.addEventListener("click", async (e) => {
-        e.preventDefault();
-        document.querySelectorAll(".error").forEach(el => el.classList.remove("error"));
-        const currentPanel = document.querySelector(`.step-panel[data-step="${currentIndex}"]`);
-        if (!currentPanel)
-            return;
-        const requiredFields = currentPanel.querySelectorAll("[required]");
-        let hasError = false;
-        requiredFields.forEach(field => {
-            if (field instanceof HTMLInputElement && field.type === "file") {
-                if (!editingApplicantId && (!field.files || field.files.length === 0)) {
-                    field.classList.add("error");
-                    if (!hasError)
-                        field.focus();
-                    hasError = true;
+    document.querySelectorAll("input[data-field], select[data-field], textarea[data-field]").forEach(el => {
+        el.addEventListener("change", () => {
+            const key = el.dataset.field;
+            if (!key)
+                return;
+            if (el instanceof HTMLInputElement && el.type === "file") {
+                const file = el.files ? el.files[0] : null;
+                formData[key] = file || null;
+                const hint = document.querySelector(`.hint[data-hint="${key}"]`);
+                const action = document.querySelector(`.upload-action[data-action="${key}"]`);
+                if (file) {
+                    if (hint)
+                        hint.textContent = file.name;
+                    if (action)
+                        action.textContent = "Replace";
+                }
+                else {
+                    if (hint)
+                        hint.textContent = "PDF, JPG, or PNG · max 5MB";
+                    if (action)
+                        action.textContent = "Upload";
                 }
             }
             else {
-                if (field.value.trim() === "") {
-                    field.classList.add("error");
-                    if (!hasError)
-                        field.focus();
-                    hasError = true;
-                }
+                formData[key] = el.value;
             }
         });
-        if (hasError)
-            return;
-        if (currentIndex === STEPS.length - 1) {
-            const form = document.getElementById("applicantForm");
-            if (!form)
+    });
+    document.querySelectorAll(".upload-action").forEach(actionEl => {
+        actionEl.addEventListener("click", () => {
+            const action = actionEl.dataset.action;
+            if (action) {
+                const fileInput = document.querySelector(`input[data-field="${action}"]`);
+                if (fileInput)
+                    fileInput.click();
+            }
+        });
+    });
+    const closeBtn = getEl("closeBtn");
+    if (closeBtn)
+        closeBtn.addEventListener("click", closeModal);
+    const doneBtn = getEl("doneBtn");
+    if (doneBtn)
+        doneBtn.addEventListener("click", closeModal);
+    const backBtn = getEl("backBtn");
+    if (backBtn) {
+        backBtn.addEventListener("click", () => {
+            if (currentIndex > 0) {
+                currentIndex--;
+                render();
+            }
+        });
+    }
+    const nextBtn = getEl("nextBtn");
+    if (nextBtn) {
+        nextBtn.addEventListener("click", async (e) => {
+            e.preventDefault();
+            document.querySelectorAll(".error").forEach(el => el.classList.remove("error"));
+            const currentPanel = document.querySelector(`.step-panel[data-step="${currentIndex}"]`);
+            if (!currentPanel)
+                return;
+            const requiredFields = currentPanel.querySelectorAll("[required]");
+            let hasError = false;
+            requiredFields.forEach(field => {
+                if (field instanceof HTMLInputElement && field.type === "file") {
+                    if (!editingApplicantId && (!field.files || field.files.length === 0)) {
+                        field.classList.add("error");
+                        if (!hasError)
+                            field.focus();
+                        hasError = true;
+                    }
+                }
+                else {
+                    if (field.value.trim() === "") {
+                        field.classList.add("error");
+                        if (!hasError)
+                            field.focus();
+                        hasError = true;
+                    }
+                }
+            });
+            if (hasError)
+                return;
+            if (currentIndex === STEPS.length - 1) {
+                const form = document.getElementById("applicantForm");
+                if (!form)
+                    return;
+                try {
+                    await window.apiSaveApplicant(form, editingApplicantId);
+                    showSuccess();
+                }
+                catch (err) {
+                    alert(err.message || "Failed to submit application.");
+                }
+                return;
+            }
+            currentIndex++;
+            furthestIndex = Math.max(furthestIndex, currentIndex);
+            render();
+        });
+    }
+    const overlay = getEl("overlay");
+    if (overlay) {
+        overlay.addEventListener("click", (e) => {
+            if (e.target === overlay)
+                closeModal();
+        });
+    }
+    const deleteConfirmBtn = getEl("deleteConfirmBtn");
+    if (deleteConfirmBtn) {
+        deleteConfirmBtn.addEventListener("click", async () => {
+            if (!deletingApplicantId)
                 return;
             try {
-                await window.apiSaveApplicant(form, editingApplicantId);
-                showSuccess();
+                const apiPath = (typeof window !== "undefined" && window.API_BASE) ? window.API_BASE : "api";
+                const res = await fetch(`${apiPath}/delete_applicant.php?id=${deletingApplicantId}`, { method: "POST" });
+                const json = await res.json();
+                if (json.success) {
+                    closeDeleteModal();
+                    loadTableData();
+                }
+                else {
+                    alert(json.message || "Failed to delete applicant.");
+                }
             }
-            catch (err) {
-                alert(err.message || "Failed to submit application.");
+            catch (e) {
+                alert("Server error when deleting applicant.");
             }
-            return;
-        }
-        currentIndex++;
-        furthestIndex = Math.max(furthestIndex, currentIndex);
-        render();
-    });
+        });
+    }
+    const deleteCloseBtn = getEl("deleteCloseBtn");
+    if (deleteCloseBtn)
+        deleteCloseBtn.addEventListener("click", closeDeleteModal);
+    const deleteCancelBtn = getEl("deleteCancelBtn");
+    if (deleteCancelBtn)
+        deleteCancelBtn.addEventListener("click", closeDeleteModal);
+    const viewCloseBtn = getEl("viewCloseBtn");
+    if (viewCloseBtn)
+        viewCloseBtn.addEventListener("click", closeViewModal);
+    const viewCloseBtn2 = getEl("viewCloseBtn2");
+    if (viewCloseBtn2)
+        viewCloseBtn2.addEventListener("click", closeViewModal);
+    const searchInput = getEl("searchInput");
+    if (searchInput)
+        searchInput.addEventListener("input", renderTable);
+    const filterType = getEl("filterType");
+    if (filterType)
+        filterType.addEventListener("change", renderTable);
+    const filterStatus = getEl("filterStatus");
+    if (filterStatus)
+        filterStatus.addEventListener("change", loadTableData);
+    const studentId = document.querySelector('[data-field="studentId"]');
+    const phoneNumber = document.querySelector('[data-field="phone"]');
+    if (studentId) {
+        studentId.addEventListener("input", function () {
+            this.value = this.value.replace(/\D/g, "");
+        });
+    }
+    if (phoneNumber) {
+        phoneNumber.addEventListener("input", function () {
+            this.value = formatPhoneNumber(this.value);
+        });
+    }
+    render();
+    loadTableData();
 }
-if (overlay) {
-    overlay.addEventListener("click", (e) => {
-        if (e.target === overlay)
-            closeModal();
-    });
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initApplicantsPage);
 }
-if (searchInput)
-    searchInput.addEventListener("input", renderTable);
-if (filterType)
-    filterType.addEventListener("change", renderTable);
-if (filterStatus)
-    filterStatus.addEventListener("change", loadTableData);
-const studentId = document.querySelector('[data-field="studentId"]');
-const phoneNumber = document.querySelector('[data-field="phone"]');
-if (studentId) {
-    studentId.addEventListener("input", function () {
-        this.value = this.value.replace(/\D/g, "");
-    });
+else {
+    initApplicantsPage();
 }
-if (phoneNumber) {
-    phoneNumber.addEventListener("input", function () {
-        this.value = formatPhoneNumber(this.value);
-    });
-}
-render();
-loadTableData();

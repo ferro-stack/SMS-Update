@@ -9,7 +9,7 @@ checkAuth();
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap" rel="stylesheet">
         <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@100..900&display=swap" rel="stylesheet">
-        <link href="<?= SITE_BASE ?>/assets/css/style.css" rel="stylesheet">
+        <link href="<?= SITE_BASE ?>/assets/css/style.css?v=<?= time() ?>" rel="stylesheet">
         <?php if (isset($page_css)): ?>
             <link rel="stylesheet" href="<?= SITE_BASE ?>/assets/css/<?= $page_css ?>">
         <?php endif; ?>
@@ -37,4 +37,3 @@ checkAuth();
                 <?php include __DIR__ . '/../includes/navbar.php'; ?>
             </div>
         </div>
-

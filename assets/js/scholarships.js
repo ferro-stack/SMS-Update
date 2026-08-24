@@ -75,13 +75,19 @@ document.addEventListener("DOMContentLoaded", () => {
         filtered.forEach((s) => {
             const tr = document.createElement("tr");
             const badgeClass = s.status === "active" ? "badge-active" : "badge-inactive";
+            let displayName = s.name;
+            if (s.code && !s.name.toLowerCase().includes(s.code.toLowerCase())) {
+                displayName = `${s.name} (${s.code})`;
+            }
             tr.innerHTML = `
         <td>
-          <strong>${s.name} (${s.code})</strong>
-          <div style="font-size:12px; color:#6b7280;">${s.coverage || s.description || 'Standard Benefit Coverage'}</div>
+          <div class="name-cell">
+            <span class="name">${displayName}</span>
+            <span class="subtext">${s.coverage || s.description || 'Standard Benefit Coverage'}</span>
+          </div>
         </td>
         <td>${s.type}</td>
-        <td><span class="font-mono">${s.slotsAvailable} / ${s.slots}</span></td>
+        <td><span class="font-mono">${s.slotsAvailable}&nbsp;/&nbsp;${s.slots}</span></td>
         <td><span class="status-badge ${badgeClass}">${s.status}</span></td>
         <td class="actions-cell">
           <button type="button" class="btn-icon-action edit" title="Edit Program" onclick="editScholarship(event, ${s.id})">
@@ -102,11 +108,15 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!schViewOverlay || !schViewBody)
             return;
         const statusClass = s.status === 'active' ? 'badge-active' : 'badge-inactive';
+        let displayName = s.name;
+        if (s.code && !s.name.toLowerCase().includes(s.code.toLowerCase())) {
+            displayName = `${s.name} (${s.code})`;
+        }
         schViewBody.innerHTML = `
       <div class="view-detail-grid">
         <div class="detail-item full-width">
           <span class="detail-label">Program Name</span>
-          <span class="detail-value highlight">${s.name} (${s.code})</span>
+          <span class="detail-value highlight">${displayName}</span>
         </div>
         <div class="detail-item">
           <span class="detail-label">Category / Type</span>

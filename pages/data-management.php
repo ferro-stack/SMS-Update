@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../config/config.php';
 
+$current_page = 'data-management';
 $page_title = "Data Management";
 $page_css = "data-management.css";
 $page_js = "data-management.js";

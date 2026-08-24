@@ -75,8 +75,18 @@ const notifDeleteConfirmBtn = document.getElementById("notifDeleteConfirmBtn");
 let deletingNotifId = null;
 async function refreshNotifications() {
     try {
-        const { data, summary } = await window.apiListNotifications(activeType);
-        renderNotifTable(data || []);
+        let resData;
+        if (typeof window.apiListNotifications === 'function') {
+            resData = await window.apiListNotifications(activeType);
+        } else {
+            const apiPath = (typeof window !== "undefined" && window.API_BASE) ? window.API_BASE : "api";
+            const url = activeType ? `${apiPath}/list_notifications.php?type=${encodeURIComponent(activeType)}` : `${apiPath}/list_notifications.php`;
+            const res = await fetch(url);
+            resData = await res.json();
+        }
+        const data = resData.data || [];
+        const summary = resData.summary;
+        renderNotifTable(data);
         if (summary) {
             if (statSentToday)
                 statSentToday.textContent = String(summary.sent_today ?? summary.sentToday ?? 0);
@@ -89,6 +99,7 @@ async function refreshNotifications() {
         }
     }
     catch (err) {
+        console.error("Error refreshing notifications:", err);
         if (notifTableBody)
             notifTableBody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:32px; color:var(--slate-400);">Couldn't load notifications: ${err.message}</td></tr>`;
     }
@@ -97,7 +108,7 @@ function renderNotifTable(notifications) {
     if (!notifTableBody)
         return;
     notifTableBody.innerHTML = "";
-    if (notifications.length === 0) {
+    if (!notifications || notifications.length === 0) {
         if (notifTableWrap)
             notifTableWrap.classList.add("hide");
         if (notifEmptyState)
@@ -192,6 +203,7 @@ if (notifDeleteConfirmBtn) {
     notifDeleteConfirmBtn.addEventListener("click", async () => {
         if (!deletingNotifId)
             return;
+        try {
             const apiPath = (typeof window !== "undefined" && window.API_BASE) ? window.API_BASE : "api";
             const res = await fetch(`${apiPath}/delete_notification.php?id=${deletingNotifId}`, { method: "POST" });
             const json = await res.json();
@@ -355,7 +367,7 @@ if (sendBtn) {
             alert(result.message);
             closeComposeModal();
             await refreshNotifications();
-            await window.updateNavCounts();
+            if (typeof window.updateNavCounts === 'function') await window.updateNavCounts();
         }
         catch (err) {
             alert(err.message);
@@ -367,5 +379,12 @@ if (sendBtn) {
     });
 }
 /* ================= Init ================= */
-refreshNotifications();
-window.updateNavCounts();
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", () => {
+        refreshNotifications();
+        if (typeof window.updateNavCounts === 'function') window.updateNavCounts();
+    });
+} else {
+    refreshNotifications();
+    if (typeof window.updateNavCounts === 'function') window.updateNavCounts();
+}

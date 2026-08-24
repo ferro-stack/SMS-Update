@@ -1,4 +1,5 @@
 <?php
+$current_page = 'dashboard';
 $page_title = "Dashboard";
 $page_css = "dashboard.css";
 $page_js = "dashboard.js";

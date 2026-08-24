@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../config/config.php';
 
+$current_page = 'evaluation';
 $page_title = "Evaluation";
 $page_css = "evaluation.css";
 $page_js = "evaluation.js";

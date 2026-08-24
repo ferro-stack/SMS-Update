@@ -125,22 +125,24 @@ function initDatabase(): PDO {
 }
 
 function seedDataIfEmpty(PDO $pdo): void {
-    // Check if applicants is empty
-    $stmt = $pdo->query("SELECT COUNT(*) FROM applicants");
-    if ($stmt->fetchColumn() == 0) {
-        // Seed Scholarships
+    // Check if scholarships is empty
+    $stmtSch = $pdo->query("SELECT COUNT(*) FROM scholarships");
+    if ($stmtSch->fetchColumn() == 0) {
         $scholarships = [
-            ['Academic Merit Scholarship', 'AMS', 'Full tuition coverage for high-performing students with GPA <= 1.50', 'Academic Merit', 1.50, 50, 14, '100% Tuition & Allowances', 'active'],
-            ['Financial Need-Based Grant', 'FNBG', 'Assistance for students with low family income', 'Financial Need-Based', 2.25, 100, 32, '75% Tuition', 'active'],
-            ['Athletic Excellence Scholarship', 'AES', 'For university varsity athletes representing the institution', 'Athletic', 2.50, 30, 8, 'Full Tuition + Sports Allowance', 'active'],
-            ['Community Leadership Award', 'CLA', 'For active student organization leaders and community servers', 'Community Service', 2.00, 25, 5, '50% Tuition', 'active']
+            ['CMSP (CHED Merit Scholarship Program)', 'CMSP', 'A competitive academic scholarship for students with high grades (such as a 93% GWA or higher in Grade 12).', 'Academic Merit', 1.50, 50, 25, 'Full Tuition & Academic Allowance', 'active'],
+            ['TDP (Tulong Dunong Program)', 'TDP', 'A grant-in-aid financial assistance program meant to help partial college costs and expenses.', 'Financial Need-Based', 2.25, 100, 45, 'Partial College Costs & Expenses', 'active'],
+            ['TES (Tertiary Education Subsidy)', 'TES', 'A major financial program under Republic Act No. 10931 helping priority students in SUCs, LUCs, and private higher education institutions.', 'Government Subsidy', 2.00, 150, 60, 'Full Tuition & Tertiary Subsidy', 'active'],
+            ['COSCHO (Scholarship for Coconut Farmers and Their Families)', 'COSCHO', 'A specialized educational program intended for registered coconut farmers and their direct relatives.', 'Special Program', 2.50, 30, 12, 'Educational Grant for Coconut Farmers & Relatives', 'active']
         ];
         $insertSch = $pdo->prepare("INSERT INTO scholarships (name, code, description, type, gwa_requirement, slots, slots_available, coverage, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
         foreach ($scholarships as $sch) {
             $insertSch->execute($sch);
         }
+    }
 
-        // Seed Applicants
+    // Check if applicants is empty
+    $stmtApp = $pdo->query("SELECT COUNT(*) FROM applicants");
+    if ($stmtApp->fetchColumn() == 0) {
         $applicants = [
             ['20230001', 'Juan', 'Dela Cruz', 'juan.delacruz@email.com', '09171234567', '2003-05-14', 'Maasin City, Southern Leyte', 'College of Maasin', 'BS Information Technology · 2nd Year', '2nd Year', 1.43, 'Academic Merit', 'pending', 1.43, 1.75, 0, 21, 1, 1, 'Top rank in class'],
             ['20230002', 'Maria', 'Santos', 'maria.santos@email.com', '09189876543', '2002-11-20', 'Macrohon, Southern Leyte', 'College of Maasin', 'BS Computer Science · 3rd Year', '3rd Year', 1.65, 'Academic Merit', 'review', 1.65, 1.75, 0, 21, 1, 1, 'Requires Dean recommendation verification'],
@@ -153,8 +155,11 @@ function seedDataIfEmpty(PDO $pdo): void {
         foreach ($applicants as $app) {
             $insertApp->execute($app);
         }
+    }
 
-        // Seed Notifications
+    // Check if notifications is empty
+    $stmtNotif = $pdo->query("SELECT COUNT(*) FROM notifications");
+    if ($stmtNotif->fetchColumn() == 0) {
         $notifications = [
             ['missing_requirements', 'segment', null, 'Missing Documents Group', 'juan.delacruz@email.com', 'Action needed: missing scholarship requirements', 'Hi Juan, your application is missing the Certificate of Indigency. Please submit before deadline.', '2026-08-20', 'sent', '2026-08-08 10:30:00'],
             ['renewal_deadline', 'segment', null, 'Active Scholars', 'maria.santos@email.com', 'Reminder: scholarship renewal deadline approaching', 'Hi Maria, submit your 1st semester clearance before August 25.', '2026-08-25', 'sent', '2026-08-09 14:15:00'],
@@ -164,8 +169,11 @@ function seedDataIfEmpty(PDO $pdo): void {
         foreach ($notifications as $notif) {
             $insertNotif->execute($notif);
         }
+    }
 
-        // Seed Records
+    // Check if records is empty
+    $stmtRec = $pdo->query("SELECT COUNT(*) FROM records");
+    if ($stmtRec->fetchColumn() == 0) {
         $records = [
             [4, '20230004', 'Angelica Reyes', 'Academic Merit', 'approved', '1st Semester', '2025-2026', '2026-08-01', 'Approved with High Distinction'],
             [5, '20230005', 'Kevin Bautista', 'Athletic', 'rejected', '1st Semester', '2025-2026', '2026-08-02', 'Disqualified due to low GWA']
@@ -174,8 +182,11 @@ function seedDataIfEmpty(PDO $pdo): void {
         foreach ($records as $rec) {
             $insertRec->execute($rec);
         }
+    }
 
-        // Seed Renewal & Retention
+    // Check if renewal_retention is empty
+    $stmtRen = $pdo->query("SELECT COUNT(*) FROM renewal_retention");
+    if ($stmtRen->fetchColumn() == 0) {
         $renewalData = [
             ['20230001', 'Juan Dela Cruz', 1.43, 0, 1, 'eligible', '2025-2026', 'First Semester', 'Academic Merit', 'Meets all retention requirements'],
             ['20230002', 'Maria Santos', 1.65, 0, 1, 'eligible', '2025-2026', 'First Semester', 'Academic Merit', 'Good standing'],

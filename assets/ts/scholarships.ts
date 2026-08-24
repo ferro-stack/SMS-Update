@@ -87,7 +87,7 @@ document.addEventListener("DOMContentLoaded", () => {
           <div style="font-size:12px; color:#6b7280;">${s.coverage || s.description || 'Standard Benefit Coverage'}</div>
         </td>
         <td>${s.type}</td>
-        <td><span class="font-mono">${s.slotsAvailable} / ${s.slots}</span></td>
+        <td style="white-space:nowrap !important; min-width:120px;"><span class="font-mono" style="white-space:nowrap !important; display:inline-block;">${s.slotsAvailable}&nbsp;/&nbsp;${s.slots}</span></td>
         <td><span class="status-badge ${badgeClass}">${s.status}</span></td>
         <td class="actions-cell">
           <button type="button" class="btn-icon-action edit" title="Edit Program" onclick="editScholarship(event, ${s.id})">

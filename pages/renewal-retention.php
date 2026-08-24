@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../config/config.php';
 
+$current_page = 'renewal-retention';
 $page_title = "Renewal & Retention";
 $page_css = "renewal-retention.css";
 $page_js = "renewal-retention.js";

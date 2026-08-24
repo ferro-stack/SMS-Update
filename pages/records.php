@@ -1,4 +1,5 @@
 <?php
+$current_page = 'records';
 $page_title = "Records";
 $page_css = "records.css";
 $page_js = "records.js";

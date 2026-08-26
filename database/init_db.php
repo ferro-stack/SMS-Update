@@ -39,6 +39,8 @@ function initDatabase(): PDO {
         phone TEXT,
         birthdate TEXT,
         address TEXT,
+        latitude REAL,
+        longitude REAL,
         school TEXT,
         program TEXT,
         year_level TEXT,
@@ -59,6 +61,17 @@ function initDatabase(): PDO {
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )");
+    // Add location columns if they don't already exist
+$columns = $pdo->query("PRAGMA table_info(applicants)")->fetchAll(PDO::FETCH_ASSOC);
+$columnNames = array_column($columns, 'name');
+
+if (!in_array('latitude', $columnNames)) {
+    $pdo->exec("ALTER TABLE applicants ADD COLUMN latitude REAL");
+}
+
+if (!in_array('longitude', $columnNames)) {
+    $pdo->exec("ALTER TABLE applicants ADD COLUMN longitude REAL");
+}
 
     // 4. Notifications Table
     $pdo->exec("CREATE TABLE IF NOT EXISTS notifications (

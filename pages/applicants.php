@@ -7,7 +7,9 @@ $page_css = "applicants.css?v=" . time();
 $page_js = "applicants.js?v=" . time();
 
 include __DIR__ . '/../includes/header.php';
+
 ?>
+
 
     <div class="page">
         <div class="table-header-toolbar">
@@ -112,7 +114,7 @@ include __DIR__ . '/../includes/header.php';
               <input type="date" name="birthdate" data-field="birthdate" required></div>
             <div class="field">
               <label>Home address <span class="req">*</span></label>
-              <input type="text" name="address" placeholder="City,Province" data-field="address" required></div>
+              <input type="text" name="address" placeholder="Street,Barangay,City,Province" data-field="address" required></div>
           </div>
         </div>
         <!-- Step 2: Academic -->
@@ -265,8 +267,9 @@ include __DIR__ . '/../includes/header.php';
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
         </button>
       </div>
-      <div class="modal-body" id="viewBody"></div>
-    </div>
+     <div class="modal-body" id="viewBody">
+    <div id="applicantMap" style="height: 300px; width: 100%; margin-top: 20px; border-radius: 10px;"></div>
+</div>
   </div>
 
   <!-- Documents modal -->

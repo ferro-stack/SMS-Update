@@ -133,6 +133,7 @@
               modalObserver.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
             });
           </script>
+          <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     </body>
 
 

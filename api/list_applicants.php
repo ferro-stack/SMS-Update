@@ -43,6 +43,8 @@ try {
             'birthdate' => $r['birthdate'],
             'address' => $r['address'],
             'school' => $r['school'],
+            'latitude' => $r['latitude'] !== null ? (float)$r['latitude'] : null,
+            'longitude' => $r['longitude'] !== null ? (float)$r['longitude'] : null,
             'program' => $r['program'],
             'yearLevel' => $r['year_level'],
             'year_level' => $r['year_level'],

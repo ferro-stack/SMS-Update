@@ -1,5 +1,50 @@
 <?php
 require_once __DIR__ . '/init.php';
+function getCoordinates($address) {
+    if (empty($address)) {
+        return [null, null];
+    }
+
+    $url = 'https://nominatim.openstreetmap.org/search?' . http_build_query([
+        'q' => $address,
+        'format' => 'json',
+        'limit' => 1,
+        'addressdetails' => 1
+    ]);
+
+    $opts = [
+        'http' => [
+            'method' => 'GET',
+            'header' => "User-Agent: SMRES-Scholarship-System/1.0\r\n",
+            'timeout' => 10
+        ]
+    ];
+
+    $context = stream_context_create($opts);
+
+    $response = file_get_contents($url, false, $context);
+
+    if ($response === false) {
+        error_log("Nominatim request failed for: " . $address);
+        return [null, null];
+    }
+
+    $data = json_decode($response, true);
+
+    if (empty($data)) {
+        error_log("Nominatim returned no results for: " . $address);
+        return [null, null];
+    }
+
+    if (!empty($data[0]['lat']) && !empty($data[0]['lon'])) {
+        return [
+            (float)$data[0]['lat'],
+            (float)$data[0]['lon']
+        ];
+    }
+
+    return [null, null];
+}
 
 try {
     $pdo = getDB();
@@ -12,6 +57,7 @@ try {
     $phone = trim($_POST['phone'] ?? '');
     $birthdate = trim($_POST['birthdate'] ?? '');
     $address = trim($_POST['address'] ?? '');
+    [$latitude, $longitude] = getCoordinates($address);
     $school = trim($_POST['school'] ?? '');
     $program = trim($_POST['program'] ?? '');
     $yearLevel = trim($_POST['yearLevel'] ?? $_POST['year_level'] ?? '');
@@ -58,16 +104,16 @@ try {
 
     if ($id > 0) {
         // Update existing applicant
-        $sql = "UPDATE applicants SET 
-            student_id = ?, first_name = ?, last_name = ?, email = ?, phone = ?, birthdate = ?, 
-            address = ?, school = ?, program = ?, year_level = ?, gpa = ?, scholarship_type = ?, 
-            essay = ?, updated_at = CURRENT_TIMESTAMP";
-        $params = [$studentId, $firstName, $lastName, $email, $phone, $birthdate, $address, $school, $program, $yearLevel, $gpa, $scholarshipType, $essay];
+        $sql = "UPDATE applicants SET
+        student_id = ?, first_name = ?, last_name = ?, email = ?, phone = ?, birthdate = ?,
+        address = ?, latitude = ?, longitude = ?, school = ?, program = ?, year_level = ?, gpa = ?, scholarship_type = ?,
+        essay = ?, updated_at = CURRENT_TIMESTAMP";
+        $params = [$studentId, $firstName, $lastName, $email, $phone, $birthdate, $address, $latitude, $longitude, $school, $program, $yearLevel, $gpa, $scholarshipType, $essay];
 
         if ($transcriptFile) {
-            $sql .= ", transcript_file = ?";
-            $params[] = $transcriptFile;
-        }
+    $sql .= ", transcript_file = ?";
+    $params[] = $transcriptFile;
+}
         if ($recommendationFile) {
             $sql .= ", recommendation_file = ?";
             $params[] = $recommendationFile;
@@ -87,13 +133,13 @@ try {
     } else {
         // Insert new applicant
         $stmt = $pdo->prepare("INSERT INTO applicants (
-            student_id, first_name, last_name, email, phone, birthdate, address, school, 
-            program, year_level, gpa, scholarship_type, status, gwa, gwa_req, failing_grades, 
+            student_id, first_name, last_name, email, phone, birthdate, address, latitude, longitude, school,
+            program, year_level, gpa, scholarship_type, status, gwa, gwa_req, failing_grades,
             units, enrolled, docs_complete, essay, transcript_file, recommendation_file, valid_id_file
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1.75, 0, 21, 1, 1, ?, ?, ?, ?)");
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?, ?, ?, 1.75, 0, 21, 1, 1, ?, ?, ?, ?)");
 
         $stmt->execute([
-            $studentId, $firstName, $lastName, $email, $phone, $birthdate, $address, $school,
+            $studentId, $firstName, $lastName, $email, $phone, $birthdate, $address, $latitude, $longitude, $school,
             $program, $yearLevel, $gpa, $scholarshipType, $status, $gpa, $essay,
             $transcriptFile, $recommendationFile, $validIdFile
         ]);

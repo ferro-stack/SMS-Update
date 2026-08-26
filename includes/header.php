@@ -1,4 +1,4 @@
-<?php 
+<?php
 require_once __DIR__ . '/../config/config.php';
 checkAuth();
 ?>
@@ -8,6 +8,8 @@ checkAuth();
     <head>
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
         <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@100..900&display=swap" rel="stylesheet">
         <link href="<?= SITE_BASE ?>/assets/css/style.css?v=<?= time() ?>" rel="stylesheet">
         <?php if (isset($page_css)): ?>
@@ -23,7 +25,7 @@ checkAuth();
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script src="<?= SITE_BASE ?>/assets/js/api.js"></script>
         <title><?= htmlspecialchars(($page_title ?? 'Scholarship Portal') . ' - Scholarship Portal') ?></title>
-    </head>  
+    </head>
 
 
 <body>

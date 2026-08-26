@@ -107,7 +107,14 @@ function renderTable() {
     if (typeof lucide !== 'undefined')
         lucide.createIcons();
 }
+
 function openViewModal(app) {
+
+    console.log("Applicant:", app);
+    console.log("Address:", app.address);
+    console.log("Latitude:", app.latitude);
+    console.log("Longitude:", app.longitude);
+
     const viewOverlay = getEl("viewOverlay");
     const viewBody = getEl("viewBody");
     if (!viewOverlay || !viewBody)
@@ -153,15 +160,61 @@ function openViewModal(app) {
         <span class="detail-label">Home Address</span>
         <span class="detail-value">${app.address || 'N/A'}</span>
       </div>
+      <div id="applicantMap" style="height: 300px; width: 200%; margin-top: 15px;"></div>
+
       ${app.remarks ? `
       <div class="detail-item full-width">
         <span class="detail-label">Remarks</span>
         <span class="detail-value remarks">${app.remarks}</span>
       </div>` : ''}
     </div>
+  `;  `;
+
+  if (app.latitude && app.longitude) {
+      const map = L.map("applicantMap").setView(
+          [app.latitude, app.longitude],
+          15
+      );
+
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          attribution: '&copy; OpenStreetMap contributors'
+      }).addTo(map);
+
+      L.marker([app.latitude, app.longitude])
+          .addTo(map)
+          .bindPopup(app.address || "Applicant location")
+          .openPopup();
+
+      setTimeout(() => {
+          map.invalidateSize();
+      }, 200);
+  }
   `;
-    viewOverlay.classList.add("open");
+
+  if (app.latitude && app.longitude) {
+      const map = L.map("applicantMap").setView(
+          [app.latitude, app.longitude],
+          15
+      );
+
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          attribution: '&copy; OpenStreetMap contributors'
+      }).addTo(map);
+
+      L.marker([app.latitude, app.longitude])
+          .addTo(map)
+          .bindPopup(app.address || "Applicant location")
+          .openPopup();
+
+      setTimeout(() => {
+          map.invalidateSize();
+      }, 200);
+  }
+
+  viewOverlay.classList.add("open");
+
 }
+
 function closeViewModal() {
     const viewOverlay = getEl("viewOverlay");
     if (viewOverlay)

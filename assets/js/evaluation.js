@@ -52,8 +52,8 @@ function normalizeEval(record) {
             const res = await fetch(EVAL_API_BASE);
             if (!res.ok)
                 throw new Error("Request failed: " + res.status);
-            const data = await res.json();
-            applicants = Array.isArray(data) ? data.map(normalizeEval) : [];
+                const data = await res.json();
+                applicants = Array.isArray(data) ? data.map(normalizeEval) : [];
         }
         catch (e) {
             applicants = [];
@@ -386,6 +386,7 @@ function normalizeEval(record) {
         if (wrap)
             wrap.innerHTML = '<div class="empty">Loading applicants\u2026</div>';
         await loadApplicants();
+        console.log("Applicants:", applicants);
         populateTypeFilter();
         renderTable();
     })();

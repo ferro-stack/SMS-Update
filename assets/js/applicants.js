@@ -168,28 +168,7 @@ function openViewModal(app) {
         <span class="detail-value remarks">${app.remarks}</span>
       </div>` : ''}
     </div>
-  `;  `;
-
-  if (app.latitude && app.longitude) {
-      const map = L.map("applicantMap").setView(
-          [app.latitude, app.longitude],
-          15
-      );
-
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-          attribution: '&copy; OpenStreetMap contributors'
-      }).addTo(map);
-
-      L.marker([app.latitude, app.longitude])
-          .addTo(map)
-          .bindPopup(app.address || "Applicant location")
-          .openPopup();
-
-      setTimeout(() => {
-          map.invalidateSize();
-      }, 200);
-  }
-  `;
+  `
 
   if (app.latitude && app.longitude) {
       const map = L.map("applicantMap").setView(
@@ -272,7 +251,7 @@ window.editApplicant = async function (event, id) {
 };
 window.confirmDeleteApplicant = function (event, id) {
     event.stopPropagation();
-    const app = loadedApplicants.find(a => a.id === id);
+    const app = loadedApplicants.find(a => Number(a.id) === Number(id));
     if (!app)
         return;
     deletingApplicantId = id;

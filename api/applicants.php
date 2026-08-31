@@ -180,6 +180,7 @@ if ($status !== null && in_array(strtolower($status), ['approved', 'rejected']))
             $insert = $pdo->prepare("
                 INSERT INTO records
                 (
+                    applicant_id,
                     student_id,
                     name,
                     scholarship_type,
@@ -191,11 +192,12 @@ if ($status !== null && in_array(strtolower($status), ['approved', 'rejected']))
                 )
                 VALUES
                 (
-                    ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, ?
+                    ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, ?
                 )
             ");
 
             $insert->execute([
+                $id,
                 $applicant['student_id'],
                 $name,
                 $applicant['scholarship_type'],

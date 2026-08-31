@@ -67,6 +67,13 @@ if (!isset($current_page) || empty($current_page) || $current_page === 'index') 
                     </a>
                 </li>
 
+                <li class="nav-link <?= ($current_page === 'scholar-map') ? 'active' : '' ?>">
+                    <a href="<?= SITE_BASE ?>/scholar-map">
+                        <i data-lucide="map-pin"></i>
+                        <span class="text nav-text">Scholar Map</span>
+                    </a>
+                </li>
+
                 <li class="nav-link <?= ($current_page === 'scholarships') ? 'active' : '' ?>">
                     <a href="<?= SITE_BASE ?>/scholarships">
                         <i data-lucide="graduation-cap"></i>

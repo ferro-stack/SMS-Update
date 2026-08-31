@@ -26,8 +26,8 @@ include __DIR__ . '/../includes/header.php';
                     <option value="Business Administration">
                         Business Administration
                     </option>
-                    <option value="Elementary Education">
-                        Elementary Education
+                    <option value="Liberal Arts and Education">
+                        Liberal Arts and Education
                     </option>
                     <option value="Food Preparation and Service Technology">
                         Food Preparation and Service Technology
@@ -63,7 +63,7 @@ include __DIR__ . '/../includes/header.php';
 
             <div class="legend-item">
                 <span class="legend-dot education"></span>
-                <span>Elementary Education</span>
+                <span>Liberal Arts and Education</span>
             </div>
 
             <div class="legend-item">

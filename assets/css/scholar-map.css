@@ -116,27 +116,27 @@
 /* Program colors */
 
 .legend-dot.nursing {
-    background: #9333ea;
+    background: #ea3388;
 }
 
 .legend-dot.information-technology {
-    background: #2563eb;
+    background: #eb2525;
 }
 
 .legend-dot.accountancy {
-    background: #dc2626;
+    background: #8426dc;
 }
 
 .legend-dot.business {
-    background: #f97316;
+    background: #16f962;
 }
 
 .legend-dot.education {
-    background: #16a34a;
+    background: #11a1da;
 }
 
 .legend-dot.fpst {
-    background: #0891b2;
+    background: #08b2a4;
 }
 
 .legend-dot.other {

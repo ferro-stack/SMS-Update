@@ -62,10 +62,11 @@ function getDepartment(program) {
     }
 
     if (
-        value.includes("elementary education") ||
-        value.includes("beed")
+        value.includes("liberal arts") ||
+        value.includes("education") ||
+        value.includes("laed")
     ) {
-        return "Elementary Education";
+        return "Liberal Arts and Education";
     }
 
     if (
@@ -82,12 +83,12 @@ function getDepartment(program) {
 
 // Program colors
 const programColors = {
-    "Nursing": "#9333ea",
-    "Information Technology": "#2563eb",
-    "Accountancy": "#dc2626",
-    "Business Administration": "#f97316",
-    "Elementary Education": "#16a34a",
-    "Food Preparation and Service Technology": "#0891b2",
+    "Nursing": "#ea3388",
+    "Information Technology": "#eb2525",
+    "Accountancy": "#8426dc",
+    "Business Administration": "#16f962",
+    "Liberal Arts and Education": "#11a1da",
+    "Food Preparation and Service Technology": "#08b2a4",
     "Other": "#64748b"
 };
 
@@ -185,6 +186,17 @@ async function loadApprovedScholars(map) {
             });
         });
 
+        // Automatically fit the map to ALL approved scholars
+        if (scholarMarkers.length > 0) {
+            const bounds = L.latLngBounds(
+                scholarMarkers.map(item => item.marker.getLatLng())
+            );
+
+            map.fitBounds(bounds, {
+                padding: [50, 50]
+            });
+        }
+
     } catch (error) {
         console.error("Scholar map error:", error);
     }
@@ -209,12 +221,28 @@ function setupProgramFilter() {
                 selectedProgram === "all" ||
                 item.department === selectedProgram
             ) {
-                item.marker.addTo(window.scholarMap);
+                if (!window.scholarMap.hasLayer(item.marker)) {
+                    item.marker.addTo(window.scholarMap);
+                }
             } else {
-                item.marker.remove();
+                if (window.scholarMap.hasLayer(item.marker)) {
+                    window.scholarMap.removeLayer(item.marker);
+                }
             }
-
         });
+
+        // Adjust map to currently visible markers
+        const visibleMarkers = scholarMarkers
+            .filter(item => window.scholarMap.hasLayer(item.marker))
+            .map(item => item.marker.getLatLng());
+
+        if (visibleMarkers.length > 0) {
+            const bounds = L.latLngBounds(visibleMarkers);
+
+            window.scholarMap.fitBounds(bounds, {
+                padding: [50, 50]
+            });
+        }
     });
 }
 

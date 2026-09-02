@@ -3,8 +3,8 @@ require_once __DIR__ . '/../config/config.php';
 
 $current_page = 'scholar-map';
 $page_title = "Scholar Map";
-$page_css = "scholar-map.css";
-$page_js = "scholar-map.js";
+$page_css = "scholar-map.css?v=" . time();
+$page_js = "scholar-map.js?v=" . time();
 
 include __DIR__ . '/../includes/header.php';
 ?>
@@ -27,7 +27,7 @@ include __DIR__ . '/../includes/header.php';
             </div>
         </div>
 
-        <div id="scholarMap" style="height: 550px; width: 100%; border-radius: 12px;"></div>
+        <div id="scholarMap"></div>
 
         <div class="map-legend">
             <h4>Departments</h4>

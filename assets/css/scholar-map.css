@@ -1,29 +1,18 @@
-
 .page {
-    padding: 24px;
+    padding: 0 24px 20px 24px;
+    margin-top: -15px;
 }
 
-.map-card {
-    width: 100%;
-    height: calc(100vh - 140px);
-    min-height: 500px;
-    background: #fff;
-    border-radius: 12px;
-    overflow: hidden;
-}
-
-#scholarMap {
-    width: 100%;
-    height: 100%;
-}
 .map-card {
     position: relative;
     width: 100%;
-    height: calc(100vh - 140px);
-    min-height: 500px;
-    background: #fff;
+    height: calc(100vh - 100px);
+    min-height: 600px;
+    background: #ffffff;
     border-radius: 12px;
     overflow: hidden;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
 }
 
 #scholarMap {
@@ -31,73 +20,83 @@
     height: 100%;
 }
 
-/* Filter */
+/* Reposition Leaflet Zoom Control to prevent overlap */
+.leaflet-top.leaflet-left {
+    top: 16px !important;
+    left: 16px !important;
+}
 
+/* Department Filter Overlay */
 .map-controls {
     position: absolute;
-    top: 20px;
-    left: 20px;
+    top: 16px;
+    left: 65px;
     z-index: 1000;
 }
 
 .map-filter {
-    background: #fff;
-    padding: 12px 14px;
+    background: #ffffff;
+    padding: 10px 14px;
     border-radius: 10px;
-    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    border: 1px solid #e2e8f0;
 }
 
 .map-filter label {
     display: block;
-    font-size: 12px;
-    font-weight: 600;
-    margin-bottom: 6px;
+    font-size: 11.5px;
+    font-weight: 700;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
 }
 
 .map-filter select {
-    width: 230px;
-    padding: 9px 10px;
-    border: 1px solid #ddd;
+    width: 240px;
+    padding: 8px 10px;
+    border: 1px solid #cbd5e1;
     border-radius: 7px;
-    background: #fff;
+    background: #ffffff;
     font-family: inherit;
     font-size: 13px;
+    color: #1e293b;
     outline: none;
+    cursor: pointer;
+    transition: border-color 0.2s ease;
 }
 
 .map-filter select:focus {
-    border-color: #2563eb;
+    border-color: #134e2a;
 }
 
-
-/* Legend */
-
+/* Map Legend Overlay */
 .map-legend {
     position: absolute;
-    bottom: 25px;
-    right: 25px;
+    bottom: 20px;
+    right: 20px;
     z-index: 1000;
-
-    background: #fff;
-    padding: 15px 18px;
+    background: #ffffff;
+    padding: 14px 16px;
     border-radius: 10px;
-
-    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.15);
-
-    min-width: 220px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    border: 1px solid #e2e8f0;
+    min-width: 230px;
 }
 
 .map-legend h4 {
-    margin: 0 0 12px;
-    font-size: 14px;
+    margin: 0 0 10px;
+    font-size: 13.5px;
+    font-weight: 700;
+    color: #134e2a;
 }
 
 .legend-item {
     display: flex;
     align-items: center;
     gap: 9px;
-    margin-bottom: 8px;
-    font-size: 12px;
+    margin-bottom: 7px;
+    font-size: 12.5px;
+    color: #334155;
 }
 
 .legend-item:last-child {
@@ -110,35 +109,4 @@
     border-radius: 50%;
     display: inline-block;
     flex-shrink: 0;
-}
-
-
-/* Program colors */
-
-.legend-dot.nursing {
-    background: #ea3388;
-}
-
-.legend-dot.information-technology {
-    background: #eb2525;
-}
-
-.legend-dot.accountancy {
-    background: #8426dc;
-}
-
-.legend-dot.business {
-    background: #16f962;
-}
-
-.legend-dot.education {
-    background: #11a1da;
-}
-
-.legend-dot.fpst {
-    background: #08b2a4;
-}
-
-.legend-dot.other {
-    background: #64748b;
 }

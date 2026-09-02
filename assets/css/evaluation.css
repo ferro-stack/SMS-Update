@@ -246,10 +246,11 @@ tbody tr:hover {
     padding:2px;
 }
 
-.right-body {
+.right-body,
 #rightPanel .custom-modal-body {
-    padding: 16px 28px 24px 28px !important;
+    padding: 16px 28px 24px;
 }
+
 
 .profile {
     padding: 14px 16px;

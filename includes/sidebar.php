@@ -25,16 +25,18 @@ if (!isset($current_page) || empty($current_page) || $current_page === 'index') 
 ?>
 <nav class="sidebar">
     <header>
-        <div class="image-text">
-            <span class="image">
-                <img src="<?= SITE_BASE ?>/assets/img/cmlogoremove.png" alt="logo" class="logo-image">
-            </span>
+    <div class="image-text">
+        <span class="image">
+            <img src="<?= SITE_BASE ?>/assets/img/cmlogoremove.png"
+                 alt="logo"
+                 class="logo-image">
+        </span>
 
-            <div class="text header-text">
-                <span class="name">Scholarship Management System</span>
-            </div>
+        <div class="text header-text">
+            <span class="name">Scholarship Management System</span>
         </div>
-    </header>
+    </div>
+</header>
 
     <div class="menu-bar">
         <div class="menu">

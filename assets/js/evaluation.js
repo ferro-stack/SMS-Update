@@ -318,20 +318,41 @@ function normalizeEval(record) {
                 }
             });
         });
-        panel.querySelectorAll("[data-decide]").forEach((btn) => {
-            btn.addEventListener("click", async () => {
-                const decision = btn.getAttribute("data-decide");
-                if (!decision)
-                    return;
-                const remarksEl = panel.querySelector("#remarksInput");
-                a.status = decision;
-                a.remarks = remarksEl ? remarksEl.value : a.remarks || "";
-                await saveApplicant(a);
-                renderTable();
-                renderRightPanel();
-                showToast(decision === "approved" ? "Applicant approved." : decision === "rejected" ? "Applicant rejected." : "Moved to interview.");
-            });
-        });
+       panel.querySelectorAll("[data-decide]").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+        const decision = btn.getAttribute("data-decide");
+
+        if (!decision)
+            return;
+
+        const remarksEl = panel.querySelector("#remarksInput");
+
+        a.status = decision;
+        a.remarks = remarksEl
+            ? remarksEl.value
+            : a.remarks || "";
+
+        await saveApplicant(a);
+
+        // Remove from evaluation table after approval/rejection
+        if (decision === "approved" || decision === "rejected") {
+            applicants = applicants.filter(
+                (item) => String(item.id) !== String(a.id)
+            );
+        }
+
+        renderTable();
+        closeRightPanel();
+
+        showToast(
+            decision === "approved"
+                ? "Applicant approved."
+                : decision === "rejected"
+                    ? "Applicant rejected."
+                    : "Moved to interview."
+        );
+    });
+});
         const remarksEl = panel.querySelector("#remarksInput");
         if (remarksEl) {
             remarksEl.addEventListener("blur", async () => {

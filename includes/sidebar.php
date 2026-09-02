@@ -46,6 +46,13 @@ if (!isset($current_page) || empty($current_page) || $current_page === 'index') 
                     </a>
                 </li>
 
+                <li class="nav-link <?= ($current_page === 'scholars') ? 'active' : '' ?>">
+                    <a href="<?= SITE_BASE ?>/scholars">
+                        <i data-lucide="award"></i>
+                        <span class="text nav-text">Scholars</span>
+                    </a>
+                </li>
+
                 <li class="nav-link <?= ($current_page === 'applicants') ? 'active' : '' ?>">
                     <a href="<?= SITE_BASE ?>/applicants">
                         <i data-lucide="users"></i>
@@ -99,6 +106,13 @@ if (!isset($current_page) || empty($current_page) || $current_page === 'index') 
                     <a href="<?= SITE_BASE ?>/data-management">
                         <i data-lucide="database"></i>
                         <span class="text nav-text">Data Management</span>
+                    </a>
+                </li>
+
+                <li class="nav-link <?= ($current_page === 'trash-bin') ? 'active' : '' ?>">
+                    <a href="<?= SITE_BASE ?>/trash-bin">
+                        <i data-lucide="rotate-ccw"></i>
+                        <span class="text nav-text">Trash Bin / Revert</span>
                     </a>
                 </li>
             </ul>

@@ -119,16 +119,45 @@ if (!in_array('longitude', $columnNames)) {
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )");
 
-    // 7. Imported Files Table
-    $pdo->exec("CREATE TABLE IF NOT EXISTS imported_files (
+    // 8. Scholars Table
+    $pdo->exec("CREATE TABLE IF NOT EXISTS scholars (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        file_type TEXT NOT NULL,
-        file_name TEXT NOT NULL,
-        file_size INTEGER DEFAULT 0,
-        records_count INTEGER DEFAULT 0,
-        imported_by TEXT DEFAULT 'Registrar Staff',
+        student_id TEXT NOT NULL,
+        name TEXT NOT NULL,
+        department TEXT NOT NULL,
+        year_level INTEGER NOT NULL DEFAULT 1,
+        gwa REAL NOT NULL DEFAULT 1.50,
         status TEXT NOT NULL DEFAULT 'Active',
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        school_year TEXT NOT NULL DEFAULT '2025-2026',
+        remarks TEXT DEFAULT '',
+        address TEXT DEFAULT '',
+        latitude REAL DEFAULT NULL,
+        longitude REAL DEFAULT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )");
+
+    $scholarsCols = $pdo->query("PRAGMA table_info(scholars)")->fetchAll(PDO::FETCH_ASSOC);
+    $scholarsColNames = array_column($scholarsCols, 'name');
+    if (!in_array('address', $scholarsColNames)) {
+        $pdo->exec("ALTER TABLE scholars ADD COLUMN address TEXT DEFAULT ''");
+    }
+    if (!in_array('latitude', $scholarsColNames)) {
+        $pdo->exec("ALTER TABLE scholars ADD COLUMN latitude REAL DEFAULT NULL");
+    }
+    if (!in_array('longitude', $scholarsColNames)) {
+        $pdo->exec("ALTER TABLE scholars ADD COLUMN longitude REAL DEFAULT NULL");
+    }
+
+    // 9. Deleted Items / Trash Bin Table
+    $pdo->exec("CREATE TABLE IF NOT EXISTS deleted_items (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        item_type TEXT NOT NULL,
+        item_id INTEGER NOT NULL,
+        title TEXT NOT NULL,
+        item_data TEXT NOT NULL,
+        deleted_by TEXT DEFAULT 'Registrar Staff',
+        deleted_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )");
 
     // Seed Data if empty
@@ -138,6 +167,26 @@ if (!in_array('longitude', $columnNames)) {
 }
 
 function seedDataIfEmpty(PDO $pdo): void {
+    // Check if scholars is empty
+    $stmtScholars = $pdo->query("SELECT COUNT(*) FROM scholars");
+    if ($stmtScholars->fetchColumn() == 0) {
+        $sampleScholars = [
+            ['20230001', 'Juan Dela Cruz', 'Information Technology', 2, 1.25, 'Active', '2025-2026', 'Maintaining high academic standing (1.25 GWA <= 1.50)', 'Maasin City, Southern Leyte', 10.1333, 124.8333],
+            ['20230004', 'Angelica Reyes', 'Nursing', 2, 1.15, 'Active', '2025-2026', 'Dean\'s Lister, excellent performance', 'Hilongos, Leyte', 10.3739, 124.7497],
+            ['20230101', 'Patricia Lim', 'Accountancy', 3, 1.40, 'Active', '2025-2026', 'Maintained 1.40 GWA requirement', 'Sogod, Southern Leyte', 10.3833, 124.9833],
+            ['20230102', 'Mark Anthony Torres', 'Business Administration', 4, 1.50, 'Active', '2025-2026', 'On the 1.50 maintenance threshold', 'Malitbog, Southern Leyte', 10.1500, 125.0000],
+            ['20230103', 'Clarissa Santos', 'Liberal Arts and Education', 1, 1.35, 'Active', '2025-2026', 'Freshman scholar in good standing', 'Macrohon, Southern Leyte', 10.0833, 124.9333],
+            ['20230104', 'Gabriel Fernandez', 'Food Preparation & Service Technology', 2, 1.48, 'Active', '2025-2026', 'Culinary arts honors student', 'Bontoc, Southern Leyte', 10.3500, 124.9667],
+            ['20230005', 'Kevin Bautista', 'Information Technology', 4, 1.75, 'Removed', '2025-2026', 'Removed: GWA 1.75 is below 1.50 maintenance requirement', 'Maasin City, Southern Leyte', 10.1500, 124.8500],
+            ['20230105', 'Rhea Villareal', 'Nursing', 3, 1.65, 'Removed', '2025-2026', 'Removed: GWA 1.65 dropped below 1.50 standard', 'Saint Bernard, Southern Leyte', 10.3333, 125.1333],
+            ['20230106', 'Dave Tan', 'Accountancy', 1, 1.42, 'Active', '2025-2026', 'Maintaining 1.50 threshold', 'Liloan, Southern Leyte', 10.1667, 125.1333],
+            ['20230107', 'Hannah Morales', 'Liberal Arts and Education', 3, 1.30, 'Active', '2025-2026', 'Consistently top of education department', 'Padre Burgos, Southern Leyte', 10.0389, 124.9750]
+        ];
+        $insertScholar = $pdo->prepare("INSERT INTO scholars (student_id, name, department, year_level, gwa, status, school_year, remarks, address, latitude, longitude) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        foreach ($sampleScholars as $s) {
+            $insertScholar->execute($s);
+        }
+    }
     // Check if scholarships is empty
     $stmtSch = $pdo->query("SELECT COUNT(*) FROM scholarships");
     if ($stmtSch->fetchColumn() == 0) {
@@ -157,14 +206,14 @@ function seedDataIfEmpty(PDO $pdo): void {
     $stmtApp = $pdo->query("SELECT COUNT(*) FROM applicants");
     if ($stmtApp->fetchColumn() == 0) {
         $applicants = [
-            ['20230001', 'Juan', 'Dela Cruz', 'juan.delacruz@email.com', '09171234567', '2003-05-14', 'Maasin City, Southern Leyte', 'College of Maasin', 'BS Information Technology · 2nd Year', '2nd Year', 1.43, 'Academic Merit', 'pending', 1.43, 1.75, 0, 21, 1, 1, 'Top rank in class'],
-            ['20230002', 'Maria', 'Santos', 'maria.santos@email.com', '09189876543', '2002-11-20', 'Macrohon, Southern Leyte', 'College of Maasin', 'BS Computer Science · 3rd Year', '3rd Year', 1.65, 'Academic Merit', 'review', 1.65, 1.75, 0, 21, 1, 1, 'Requires Dean recommendation verification'],
-            ['20230003', 'Carlo', 'Mendoza', 'carlo.mendoza@email.com', '09195551234', '2004-01-10', 'Batu, Leyte', 'College of Maasin', 'BS Business Administration · 1st Year', '1st Year', 2.10, 'Financial Need-Based', 'interview', 2.10, 2.25, 0, 18, 1, 1, 'Scheduled for panel interview'],
-            ['20230004', 'Angelica', 'Reyes', 'angelica.reyes@email.com', '09204443322', '2003-08-05', 'Hilongos, Leyte', 'College of Maasin', 'BS Nursing · 2nd Year', '2nd Year', 1.25, 'Academic Merit', 'approved', 1.25, 1.75, 0, 24, 1, 1, 'Endorsed for 100% grant'],
-            ['20230005', 'Kevin', 'Bautista', 'kevin.bautista@email.com', '09213332211', '2002-03-30', 'Maasin City, Southern Leyte', 'College of Maasin', 'BS Criminology · 4th Year', '4th Year', 2.80, 'Athletic', 'rejected', 2.80, 2.50, 2, 15, 1, 0, 'Did not meet minimum units & GWA'],
-            ['20230006', 'Samantha', 'Gomez', 'samantha.gomez@email.com', '09228889900', '2004-09-12', 'Padre Burgos, Southern Leyte', 'College of Maasin', 'BS Education · 1st Year', '1st Year', 1.80, 'Community Service', 'pending', 1.80, 2.00, 0, 21, 1, 1, 'Submitted complete documents']
+            ['20230001', 'Juan', 'Dela Cruz', 'juan.delacruz@email.com', '09171234567', '2003-05-14', 'Maasin City, Southern Leyte', 10.1333, 124.8333, 'College of Maasin', 'BS Information Technology · 2nd Year', '2nd Year', 1.43, 'Academic Merit', 'pending', 1.43, 1.75, 0, 21, 1, 1, 'Top rank in class'],
+            ['20230002', 'Maria', 'Santos', 'maria.santos@email.com', '09189876543', '2002-11-20', 'Macrohon, Southern Leyte', 10.0833, 124.9333, 'College of Maasin', 'BS Computer Science · 3rd Year', '3rd Year', 1.65, 'Academic Merit', 'review', 1.65, 1.75, 0, 21, 1, 1, 'Requires Dean recommendation verification'],
+            ['20230003', 'Carlo', 'Mendoza', 'carlo.mendoza@email.com', '09195551234', '2004-01-10', 'Batu, Leyte', 10.3333, 124.7833, 'College of Maasin', 'BS Business Administration · 1st Year', '1st Year', 2.10, 'Financial Need-Based', 'interview', 2.10, 2.25, 0, 18, 1, 1, 'Scheduled for panel interview'],
+            ['20230004', 'Angelica', 'Reyes', 'angelica.reyes@email.com', '09204443322', '2003-08-05', 'Hilongos, Leyte', 10.3739, 124.7497, 'College of Maasin', 'BS Nursing · 2nd Year', '2nd Year', 1.25, 'Academic Merit', 'approved', 1.25, 1.75, 0, 24, 1, 1, 'Endorsed for 100% grant'],
+            ['20230005', 'Kevin', 'Bautista', 'kevin.bautista@email.com', '09213332211', '2002-03-30', 'Maasin City, Southern Leyte', 10.1500, 124.8500, 'College of Maasin', 'BS Criminology · 4th Year', '4th Year', 2.80, 'Athletic', 'rejected', 2.80, 2.50, 2, 15, 1, 0, 'Did not meet minimum units & GWA'],
+            ['20230006', 'Samantha', 'Gomez', 'samantha.gomez@email.com', '09228889900', '2004-09-12', 'Padre Burgos, Southern Leyte', 10.0389, 124.9750, 'College of Maasin', 'BS Education · 1st Year', '1st Year', 1.80, 'Community Service', 'pending', 1.80, 2.00, 0, 21, 1, 1, 'Submitted complete documents']
         ];
-        $insertApp = $pdo->prepare("INSERT INTO applicants (student_id, first_name, last_name, email, phone, birthdate, address, school, program, year_level, gpa, scholarship_type, status, gwa, gwa_req, failing_grades, units, enrolled, docs_complete, remarks) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $insertApp = $pdo->prepare("INSERT INTO applicants (student_id, first_name, last_name, email, phone, birthdate, address, latitude, longitude, school, program, year_level, gpa, scholarship_type, status, gwa, gwa_req, failing_grades, units, enrolled, docs_complete, remarks) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
         foreach ($applicants as $app) {
             $insertApp->execute($app);
         }

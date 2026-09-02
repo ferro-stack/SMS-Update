@@ -119,7 +119,12 @@ function renderTable(): void {
       </td>
     `;
 
-    tr.addEventListener('click', () => openViewModal(app));
+    tr.addEventListener('click', (e: MouseEvent) => {
+      if (e.target && (e.target as HTMLElement).closest && (e.target as HTMLElement).closest('.actions-cell, .btn-icon-action')) {
+        return;
+      }
+      openViewModal(app);
+    });
     tableBody.appendChild(tr);
   });
 
@@ -231,14 +236,18 @@ function closeViewModal(): void {
   }
 };
 
-(window as any).confirmDeleteApplicant = function(event: MouseEvent, id: number): void {
-  event.stopPropagation();
-  const app = loadedApplicants.find(a => a.id === id);
-  if (!app) return;
-  deletingApplicantId = id;
+(window as any).confirmDeleteApplicant = function(event: MouseEvent | Event, id: number | string): void {
+  if (event && typeof event.stopPropagation === "function") {
+    event.stopPropagation();
+  }
+  closeViewModal();
+  const targetId = Number(id);
+  if (!targetId) return;
+  deletingApplicantId = targetId;
+  const item = loadedApplicants.find(a => Number(a.id) === targetId);
   const deleteTargetName = getEl("deleteTargetName");
   const deleteConfirmOverlay = getEl("deleteConfirmOverlay");
-  if (deleteTargetName) deleteTargetName.textContent = app.name;
+  if (deleteTargetName) deleteTargetName.textContent = item ? (item.name || `${item.firstName || ''} ${item.lastName || ''}`.trim()) : `Applicant #${targetId}`;
   if (deleteConfirmOverlay) deleteConfirmOverlay.classList.add("open");
 };
 
@@ -469,13 +478,28 @@ function initApplicantsPage(): void {
       if (hasError) return;
 
       if (currentIndex === STEPS.length - 1) {
+        if ((window as any).isSavingApplicant) return;
         const form = document.getElementById("applicantForm") as HTMLFormElement | null;
         if (!form) return;
+        (window as any).isSavingApplicant = true;
+        if (nextBtn) {
+          nextBtn.disabled = true;
+          nextBtn.textContent = "Saving...";
+        }
         try {
           await (window as any).apiSaveApplicant(form, editingApplicantId);
+          await loadTableData();
+          if (typeof (window as any).updateNavCounts === "function") {
+            (window as any).updateNavCounts();
+          }
           showSuccess();
         } catch (err: any) {
           alert(err.message || "Failed to submit application.");
+        } finally {
+          (window as any).isSavingApplicant = false;
+          if (nextBtn) {
+            nextBtn.disabled = false;
+          }
         }
         return;
       }
@@ -497,13 +521,27 @@ function initApplicantsPage(): void {
   if (deleteConfirmBtn) {
     deleteConfirmBtn.addEventListener("click", async () => {
       if (!deletingApplicantId) return;
+  const deleteConfirmOverlay = getEl("deleteConfirmOverlay");
+  if (deleteConfirmOverlay) {
+    deleteConfirmOverlay.addEventListener("click", (e) => {
+      if (e.target === deleteConfirmOverlay) closeDeleteModal();
+    });
+  }
+
+  const deleteConfirmBtn = getEl("deleteConfirmBtn");
+  if (deleteConfirmBtn) {
+    deleteConfirmBtn.addEventListener("click", async () => {
+      if (!deletingApplicantId) return;
       try {
         const apiPath = (typeof window !== "undefined" && (window as any).API_BASE) ? (window as any).API_BASE : "api";
         const res = await fetch(`${apiPath}/delete_applicant.php?id=${deletingApplicantId}`, { method: "POST" });
         const json = await res.json();
         if (json.success) {
           closeDeleteModal();
-          loadTableData();
+          await loadTableData();
+          if (typeof (window as any).updateNavCounts === "function") {
+            (window as any).updateNavCounts();
+          }
         } else {
           alert(json.message || "Failed to delete applicant.");
         }

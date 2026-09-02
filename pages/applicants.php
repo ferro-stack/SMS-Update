@@ -267,9 +267,10 @@
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
           </button>
         </div>
-      <div class="modal-body" id="viewBody">
-      <div id="applicantMap" style="height: 300px; width: 100%; margin-top: 20px; border-radius: 10px;"></div>
-  </div>
+        <div class="modal-body" id="viewBody">
+          <div id="applicantMap" style="height: 300px; width: 100%; margin-top: 20px; border-radius: 10px;"></div>
+        </div>
+      </div>
     </div>
 
     <!-- Documents modal -->
@@ -297,15 +298,13 @@
       <div class="custom-modal-card sm">
         <div class="custom-modal-header">
           <div>
-            <h3>Confirm Deletion</h3>
-            <p>This action cannot be undone.</p>
+            <h3>Delete Applicant</h3>
+            <p>Confirm applicant record removal.</p>
           </div>
-          <button type="button" class="custom-modal-close" id="deleteCloseBtn">
-            <i data-lucide="x"></i>
-          </button>
+          <button type="button" class="custom-modal-close" id="deleteCloseBtn"><i data-lucide="x"></i></button>
         </div>
         <div class="custom-modal-body">
-          <p style="font-size:14px; color:#4b5563;">Are you sure you want to delete applicant <strong id="deleteTargetName"></strong>?</p>
+          <p style="font-size:14px; color:#4b5563;">Are you sure you want to delete applicant record for <strong id="deleteTargetName"></strong>?</p>
         </div>
         <div class="custom-modal-footer">
           <button type="button" class="btn-secondary" id="deleteCancelBtn">Cancel</button>

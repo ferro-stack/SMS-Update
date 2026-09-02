@@ -4,254 +4,151 @@ let scholarMarkers = [];
 
 document.addEventListener("DOMContentLoaded", () => {
     const mapElement = document.getElementById("scholarMap");
+    if (!mapElement) return;
 
-    if (!mapElement) {
-        return;
-    }
-
-    // Create the map
-    const map = L.map("scholarMap");
-
+    // Initialize Leaflet Map centered around Leyte / Southern Leyte
+    const map = L.map("scholarMap").setView([10.2500, 124.9000], 10);
     window.scholarMap = map;
 
-    map.setView([10.3157, 123.8854], 8);
-
-    // Add OpenStreetMap tiles
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         attribution: "&copy; OpenStreetMap contributors"
     }).addTo(map);
 
-    // Load approved scholars
-    loadApprovedScholars(map);
-
-    // Setup program filter
-    setupProgramFilter();
+    loadStudentLocations(map);
+    setupDepartmentFilter();
 });
 
-
-// Determine the program/department
-function getDepartment(program) {
-    const value = (program || "").toLowerCase();
-
-    if (
-        value.includes("nursing") ||
-        value.includes("bsn")
-    ) {
-        return "Nursing";
-    }
-
-    if (
-        value.includes("information technology") ||
-        value.includes("bsit")
-    ) {
-        return "Information Technology";
-    }
-
-    if (
-        value.includes("accountancy") ||
-        value.includes("bsa")
-    ) {
-        return "Accountancy";
-    }
-
-    if (
-        value.includes("business administration") ||
-        value.includes("bsba")
-    ) {
-        return "Business Administration";
-    }
-
-    if (
-        value.includes("liberal arts") ||
-        value.includes("education") ||
-        value.includes("laed")
-    ) {
-        return "Liberal Arts and Education";
-    }
-
-    if (
-        value.includes("food preparation") ||
-        value.includes("service technology") ||
-        value.includes("fpst")
-    ) {
-        return "Food Preparation and Service Technology";
-    }
-
-    return "Other";
-}
-
-
-// Program colors
-const programColors = {
+// Program & Department Color Palette
+const departmentColors = {
     "Nursing": "#ea3388",
-    "Information Technology": "#eb2525",
+    "Information Technology": "#2ea263",
     "Accountancy": "#8426dc",
-    "Business Administration": "#16f962",
+    "Business Administration": "#f59e0b",
     "Liberal Arts and Education": "#11a1da",
-    "Food Preparation and Service Technology": "#08b2a4",
+    "Food Preparation & Service Technology": "#08b2a4",
     "Other": "#64748b"
 };
 
+function normalizeDepartment(deptStr) {
+    const d = (deptStr || "").toLowerCase();
+    if (d.includes("nursing")) return "Nursing";
+    if (d.includes("information technology") || d.includes("it") || d.includes("computer")) return "Information Technology";
+    if (d.includes("accountancy") || d.includes("accounting")) return "Accountancy";
+    if (d.includes("business")) return "Business Administration";
+    if (d.includes("liberal") || d.includes("education")) return "Liberal Arts and Education";
+    if (d.includes("food") || d.includes("service") || d.includes("fpst")) return "Food Preparation & Service Technology";
+    return "Information Technology";
+}
 
-// Load approved scholars
-async function loadApprovedScholars(map) {
+async function loadStudentLocations(map) {
     try {
-        const response = await fetch(
-            window.API_BASE + "/scholar-map.php"
-        );
-
-        if (!response.ok) {
-            throw new Error("Failed to load scholar locations.");
-        }
+        const apiBase = window.API_BASE || "api";
+        const response = await fetch(`${apiBase}/scholar-map.php`);
+        if (!response.ok) throw new Error("Failed to load student location data.");
 
         const result = await response.json();
+        if (!result.success || !Array.isArray(result.data)) throw new Error("Invalid response format.");
 
-        console.log("Scholar map data:", result);
+        // Clear existing markers
+        scholarMarkers.forEach(item => {
+            if (map.hasLayer(item.marker)) map.removeLayer(item.marker);
+        });
+        scholarMarkers = [];
 
-        if (!result.success) {
-            throw new Error(
-                result.message || "Failed to load data."
-            );
-        }
-
-        result.data.forEach((scholar) => {
-
-            // Skip scholars without coordinates
-            if (
-                scholar.latitude === null ||
-                scholar.longitude === null
-            ) {
+        result.data.forEach((student) => {
+            if (student.latitude === null || student.longitude === null || isNaN(student.latitude) || isNaN(student.longitude)) {
                 return;
             }
 
-            // Determine department
-            const department = getDepartment(scholar.program);
+            const deptKey = normalizeDepartment(student.department);
+            const color = departmentColors[deptKey] || "#2ea263";
 
-            // Create colored marker
-            const marker = L.circleMarker(
-                [
-                    scholar.latitude,
-                    scholar.longitude
-                ],
-                {
-                    radius: 9,
-                    fillColor: programColors[department],
-                    color: "#ffffff",
-                    weight: 2,
-                    opacity: 1,
-                    fillOpacity: 0.9
-                }
-            ).addTo(map);
+            // Circle Marker for clean map representation
+            const marker = L.circleMarker([student.latitude, student.longitude], {
+                radius: 10,
+                fillColor: color,
+                color: "#ffffff",
+                weight: 2,
+                opacity: 1,
+                fillOpacity: 0.9
+            }).addTo(map);
 
-            // Store marker for filtering
-            scholarMarkers.push({
-                marker: marker,
-                department: department
-            });
+            const isMaintained = Number(student.gwa) <= 1.50;
+            const statusLabel = isMaintained ? "Active (≤ 1.50 GWA)" : "Removed (Below 1.50)";
+            const statusColor = isMaintained ? "#16a34a" : "#dc2626";
 
-            // Hover information
-            marker.bindTooltip(`
-                <div class="scholar-tooltip">
-                    <strong>${escapeHtml(scholar.name)}</strong>
-
-                    <div>
-                        <strong>Student ID:</strong>
-                        ${escapeHtml(scholar.studentId)}
-                    </div>
-
-                    <div>
-                        <strong>Department:</strong>
-                        ${escapeHtml(department)}
-                    </div>
-
-                    <div>
-                        <strong>Program:</strong>
-                        ${escapeHtml(scholar.program)}
-                    </div>
-
-                    <div>
-                        <strong>Scholarship:</strong>
-                        ${escapeHtml(scholar.scholarshipType)}
-                    </div>
-
-                    <div>
-                        <strong>Address:</strong>
-                        ${escapeHtml(scholar.address)}
+            // Rich interactive Popup
+            marker.bindPopup(`
+                <div style="font-family: 'DM Sans', sans-serif; padding: 4px;">
+                    <h3 style="margin: 0 0 6px 0; font-size: 15px; color: #134e2a;">${escapeHtml(student.name)}</h3>
+                    <div style="font-size: 12.5px; color: #334155; line-height: 1.6;">
+                        <div><strong>Student ID:</strong> <span style="font-family: monospace;">${escapeHtml(student.studentId)}</span></div>
+                        <div><strong>Department:</strong> <span style="color: ${color}; font-weight:700;">${escapeHtml(deptKey)}</span></div>
+                        <div><strong>Year Level:</strong> Year ${escapeHtml(String(student.yearLevel || 1))}</div>
+                        <div><strong>Current GWA:</strong> <span style="font-family: monospace; font-weight:700;">${Number(student.gwa || 1.50).toFixed(2)}</span></div>
+                        <div><strong>Status:</strong> <span style="color: ${statusColor}; font-weight: 700;">${escapeHtml(statusLabel)}</span></div>
+                        <div style="margin-top: 4px;"><strong>Location:</strong> ${escapeHtml(student.address)}</div>
                     </div>
                 </div>
-            `, {
+            `);
+
+            marker.bindTooltip(`<strong>${escapeHtml(student.name)}</strong> (${deptKey})`, {
                 direction: "top",
-                sticky: true,
-                opacity: 1
+                sticky: true
+            });
+
+            scholarMarkers.push({
+                marker: marker,
+                department: deptKey,
+                data: student
             });
         });
 
-        // Automatically fit the map to ALL approved scholars
+        // Auto zoom to fit visible markers
         if (scholarMarkers.length > 0) {
-            const bounds = L.latLngBounds(
-                scholarMarkers.map(item => item.marker.getLatLng())
-            );
-
-            map.fitBounds(bounds, {
-                padding: [50, 50]
-            });
+            const bounds = L.latLngBounds(scholarMarkers.map(i => i.marker.getLatLng()));
+            map.fitBounds(bounds, { padding: [50, 50] });
         }
-
-    } catch (error) {
-        console.error("Scholar map error:", error);
+    } catch (err) {
+        console.error("Map location loading error:", err);
     }
 }
 
+function setupDepartmentFilter() {
+    const filterEl = document.getElementById("programFilter");
+    if (!filterEl) return;
 
-// Program filter
-function setupProgramFilter() {
-    const programFilter = document.getElementById("programFilter");
+    filterEl.addEventListener("change", () => {
+        const selectedDept = filterEl.value;
+        const map = window.scholarMap;
+        if (!map) return;
 
-    if (!programFilter) {
-        return;
-    }
-
-    programFilter.addEventListener("change", () => {
-
-        const selectedProgram = programFilter.value;
+        const visibleLatLngs = [];
 
         scholarMarkers.forEach((item) => {
-
-            if (
-                selectedProgram === "all" ||
-                item.department === selectedProgram
-            ) {
-                if (!window.scholarMap.hasLayer(item.marker)) {
-                    item.marker.addTo(window.scholarMap);
+            const matches = (selectedDept === "all" || item.department === selectedDept);
+            if (matches) {
+                if (!map.hasLayer(item.marker)) {
+                    item.marker.addTo(map);
                 }
+                visibleLatLngs.push(item.marker.getLatLng());
             } else {
-                if (window.scholarMap.hasLayer(item.marker)) {
-                    window.scholarMap.removeLayer(item.marker);
+                if (map.hasLayer(item.marker)) {
+                    map.removeLayer(item.marker);
                 }
             }
         });
 
-        // Adjust map to currently visible markers
-        const visibleMarkers = scholarMarkers
-            .filter(item => window.scholarMap.hasLayer(item.marker))
-            .map(item => item.marker.getLatLng());
-
-        if (visibleMarkers.length > 0) {
-            const bounds = L.latLngBounds(visibleMarkers);
-
-            window.scholarMap.fitBounds(bounds, {
-                padding: [50, 50]
-            });
+        // Fit map bounds to currently filtered markers
+        if (visibleLatLngs.length > 0) {
+            const bounds = L.latLngBounds(visibleLatLngs);
+            map.fitBounds(bounds, { padding: [60, 60], maxZoom: 14 });
         }
     });
 }
 
-
-// Prevent HTML injection
-function escapeHtml(value) {
+function escapeHtml(str) {
     const div = document.createElement("div");
-
-    div.textContent = value ?? "";
-
+    div.textContent = str ?? "";
     return div.innerHTML;
 }

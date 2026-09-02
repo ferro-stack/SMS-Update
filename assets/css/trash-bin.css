@@ -1,0 +1,148 @@
+/* ============================================================
+   Trash Bin / Revert Deleted Items Styling — Green Theme Match
+   ============================================================ */
+
+:root {
+    --green-900: #134e2a;
+    --green-800: #1b6336;
+    --green-700: #238f54;
+    --green-600: #2ea263;
+    --green-500: #3ab774;
+    --green-100: #e8f5e9;
+    --green-50: #f2faf4;
+    --green-border: #c8e6c9;
+}
+
+.trash-container {
+    padding: 24px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.trash-banner {
+    background: linear-gradient(135deg, #134e2a 0%, #1b6336 50%, #238f54 100%);
+    border-radius: 14px;
+    padding: 20px 24px;
+    color: #ffffff;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    box-shadow: 0 6px 24px rgba(19, 78, 42, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.trash-banner-info h3 {
+    margin: 0 0 6px 0;
+    font-size: 18px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #ffffff;
+}
+
+.trash-banner-info p {
+    margin: 0;
+    font-size: 13.5px;
+    color: #e8f5e9;
+    line-height: 1.5;
+}
+
+.trash-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 24px;
+    background: #ffffff;
+    padding: 16px 20px;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+}
+
+.trash-type-filter {
+    height: 40px;
+    padding: 0 14px;
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+    background: #f8fafc;
+    font-size: 13.5px;
+    color: #334155;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.trash-type-filter:focus {
+    border-color: #2ea263;
+    background: #ffffff;
+    box-shadow: 0 0 0 3px rgba(46, 162, 99, 0.15);
+}
+
+.btn-restore {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: linear-gradient(135deg, #2ea263 0%, #238f54 100%);
+    color: #ffffff;
+    border: none;
+    padding: 7px 14px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 12.5px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-restore:hover {
+    background: linear-gradient(135deg, #238f54 0%, #1b6336 100%);
+    box-shadow: 0 3px 10px rgba(35, 143, 84, 0.25);
+}
+
+.btn-purge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #ef4444;
+    color: #ffffff;
+    border: none;
+    padding: 7px 14px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 12.5px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-purge:hover {
+    background: #dc2626;
+}
+
+.item-type-badge {
+    text-transform: uppercase;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 12px;
+    letter-spacing: 0.5px;
+}
+
+.item-type-applicant { background: #e0f2fe; color: #0369a1; }
+.item-type-scholar { background: #e8f5e9; color: #134e2a; border: 1px solid #c8e6c9; }
+.item-type-scholarship { background: #fef3c7; color: #b45309; }
+.item-type-record { background: #f3e8ff; color: #6b21a8; }
+.item-type-notification { background: #ffe4e6; color: #be123c; }
+.item-type-import { background: #f1f5f9; color: #475569; }
+
+.scholars-table th {
+    background: #f2faf4 !important;
+    color: #134e2a !important;
+    border-bottom: 1.5px solid #c8e6c9 !important;
+}
+
+.scholars-table tr:hover {
+    background-color: #f2faf4 !important;
+}

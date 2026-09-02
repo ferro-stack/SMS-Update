@@ -101,7 +101,12 @@ function renderTable() {
         </button>
       </td>
     `;
-        tr.addEventListener('click', () => openViewModal(app));
+        tr.addEventListener('click', (e) => {
+            if (e.target && e.target.closest && e.target.closest('.actions-cell, .btn-icon-action, button, svg, path')) {
+                return;
+            }
+            openViewModal(app);
+        });
         tableBody.appendChild(tr);
     });
     if (typeof lucide !== 'undefined')
@@ -200,7 +205,8 @@ function closeViewModal() {
         viewOverlay.classList.remove("open");
 }
 window.editApplicant = async function (event, id) {
-    event.stopPropagation();
+    if (event && typeof event.stopPropagation === "function") event.stopPropagation();
+    closeViewModal();
     try {
         const app = await window.apiGetApplicant(id);
         editingApplicantId = id;
@@ -250,18 +256,23 @@ window.editApplicant = async function (event, id) {
     }
 };
 window.confirmDeleteApplicant = function (event, id) {
-    event.stopPropagation();
-    const app = loadedApplicants.find(a => Number(a.id) === Number(id));
-    if (!app)
+    if (event && typeof event.stopPropagation === "function") {
+        event.stopPropagation();
+    }
+    closeViewModal();
+    const targetId = Number(id);
+    if (!targetId)
         return;
-    deletingApplicantId = id;
+    deletingApplicantId = targetId;
+    const item = loadedApplicants.find(a => Number(a.id) === targetId);
     const deleteTargetName = getEl("deleteTargetName");
     const deleteConfirmOverlay = getEl("deleteConfirmOverlay");
     if (deleteTargetName)
-        deleteTargetName.textContent = app.name;
+        deleteTargetName.textContent = item ? (item.name || `${item.firstName || ''} ${item.lastName || ''}`.trim()) : `Applicant #${targetId}`;
     if (deleteConfirmOverlay)
         deleteConfirmOverlay.classList.add("open");
 };
+
 function closeDeleteModal() {
     const deleteConfirmOverlay = getEl("deleteConfirmOverlay");
     if (deleteConfirmOverlay)
@@ -395,6 +406,12 @@ function closeModal() {
     loadTableData();
 }
 function initApplicantsPage() {
+    const applicantForm = getEl("applicantForm");
+    if (applicantForm) {
+        applicantForm.addEventListener("submit", (e) => {
+            e.preventDefault();
+        });
+    }
     document.addEventListener("click", (e) => {
         const target = e.target;
         if (target && target.closest("#openBtn, #emptyStateAddBtn")) {
@@ -486,15 +503,32 @@ function initApplicantsPage() {
             if (hasError)
                 return;
             if (currentIndex === STEPS.length - 1) {
+                if (window.isSavingApplicant)
+                    return;
                 const form = document.getElementById("applicantForm");
                 if (!form)
                     return;
+                window.isSavingApplicant = true;
+                if (nextBtn) {
+                    nextBtn.disabled = true;
+                    nextBtn.textContent = "Saving...";
+                }
                 try {
                     await window.apiSaveApplicant(form, editingApplicantId);
+                    await loadTableData();
+                    if (typeof window.updateNavCounts === "function") {
+                        window.updateNavCounts();
+                    }
                     showSuccess();
                 }
                 catch (err) {
                     alert(err.message || "Failed to submit application.");
+                }
+                finally {
+                    window.isSavingApplicant = false;
+                    if (nextBtn) {
+                        nextBtn.disabled = false;
+                    }
                 }
                 return;
             }
@@ -510,6 +544,20 @@ function initApplicantsPage() {
                 closeModal();
         });
     }
+    const deleteConfirmOverlay = getEl("deleteConfirmOverlay");
+    if (deleteConfirmOverlay) {
+        deleteConfirmOverlay.addEventListener("click", (e) => {
+            if (e.target === deleteConfirmOverlay)
+                closeDeleteModal();
+        });
+    }
+    const viewOverlay = getEl("viewOverlay");
+    if (viewOverlay) {
+        viewOverlay.addEventListener("click", (e) => {
+            if (e.target === viewOverlay)
+                closeViewModal();
+        });
+    }
     const deleteConfirmBtn = getEl("deleteConfirmBtn");
     if (deleteConfirmBtn) {
         deleteConfirmBtn.addEventListener("click", async () => {
@@ -521,7 +569,10 @@ function initApplicantsPage() {
                 const json = await res.json();
                 if (json.success) {
                     closeDeleteModal();
-                    loadTableData();
+                    await loadTableData();
+                    if (typeof window.updateNavCounts === "function") {
+                        window.updateNavCounts();
+                    }
                 }
                 else {
                     alert(json.message || "Failed to delete applicant.");

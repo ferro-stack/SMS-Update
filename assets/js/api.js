@@ -114,6 +114,40 @@ async function updateNavCounts() {
         console.error("Failed to update nav counts:", e);
     }
 }
+async function apiListScholars(department, yearLevel, status, search) {
+    const params = new URLSearchParams();
+    if (department) params.append("department", department);
+    if (yearLevel) params.append("year_level", String(yearLevel));
+    if (status) params.append("status", status);
+    if (search) params.append("search", search);
+
+    const res = await fetch(`${API_BASE}/list_scholars.php?${params.toString()}`);
+    const json = await res.json();
+    if (!json.success || !json.data)
+        throw new Error(json.message || "Failed to load scholars.");
+    return json.data;
+}
+
+async function apiSaveScholar(data) {
+    const formData = new FormData();
+    Object.entries(data).forEach(([k, v]) => formData.append(k, String(v ?? '')));
+    const res = await fetch(`${API_BASE}/save_scholar.php`, { method: "POST", body: formData });
+    const json = await res.json();
+    if (!json.success)
+        throw new Error(json.message || "Failed to save scholar record.");
+    return json;
+}
+
+async function apiDeleteScholar(id) {
+    const formData = new FormData();
+    formData.append("id", String(id));
+    const res = await fetch(`${API_BASE}/delete_scholar.php`, { method: "POST", body: formData });
+    const json = await res.json();
+    if (!json.success)
+        throw new Error(json.message || "Failed to delete scholar record.");
+    return json;
+}
+
 // Assign to window for global availability across pages
 window.apiListApplicants = apiListApplicants;
 window.apiGetApplicant = apiGetApplicant;
@@ -123,4 +157,7 @@ window.apiDecideApplicant = apiDecideApplicant;
 window.apiListNotifications = apiListNotifications;
 window.apiGetRecipients = apiGetRecipients;
 window.apiSendNotification = apiSendNotification;
+window.apiListScholars = apiListScholars;
+window.apiSaveScholar = apiSaveScholar;
+window.apiDeleteScholar = apiDeleteScholar;
 window.updateNavCounts = updateNavCounts;

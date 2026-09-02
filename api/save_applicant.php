@@ -1,49 +1,48 @@
 <?php
 require_once __DIR__ . '/init.php';
+
 function getCoordinates($address) {
     if (empty($address)) {
-        return [null, null];
+        return [10.1333, 124.8333];
     }
+
+    $addrLower = strtolower($address);
+    if (strpos($addrLower, 'maasin') !== false) return [10.1333, 124.8333];
+    if (strpos($addrLower, 'macrohon') !== false) return [10.0833, 124.9333];
+    if (strpos($addrLower, 'batu') !== false || strpos($addrLower, 'bato') !== false) return [10.3333, 124.7833];
+    if (strpos($addrLower, 'hilongos') !== false) return [10.3739, 124.7497];
+    if (strpos($addrLower, 'padre burgos') !== false) return [10.0389, 124.9750];
+    if (strpos($addrLower, 'sogod') !== false) return [10.3833, 124.9833];
+    if (strpos($addrLower, 'malitbog') !== false) return [10.1500, 125.0000];
+    if (strpos($addrLower, 'saint bernard') !== false) return [10.3333, 125.1333];
+    if (strpos($addrLower, 'liloan') !== false) return [10.1667, 125.1333];
+    if (strpos($addrLower, 'bontoc') !== false) return [10.3500, 124.9667];
 
     $url = 'https://nominatim.openstreetmap.org/search?' . http_build_query([
         'q' => $address,
         'format' => 'json',
-        'limit' => 1,
-        'addressdetails' => 1
+        'limit' => 1
     ]);
 
     $opts = [
         'http' => [
             'method' => 'GET',
             'header' => "User-Agent: SMRES-Scholarship-System/1.0\r\n",
-            'timeout' => 10
+            'timeout' => 2
         ]
     ];
 
     $context = stream_context_create($opts);
+    $response = @file_get_contents($url, false, $context);
 
-    $response = file_get_contents($url, false, $context);
-
-    if ($response === false) {
-        error_log("Nominatim request failed for: " . $address);
-        return [null, null];
+    if ($response !== false) {
+        $data = json_decode($response, true);
+        if (!empty($data[0]['lat']) && !empty($data[0]['lon'])) {
+            return [(float)$data[0]['lat'], (float)$data[0]['lon']];
+        }
     }
 
-    $data = json_decode($response, true);
-
-    if (empty($data)) {
-        error_log("Nominatim returned no results for: " . $address);
-        return [null, null];
-    }
-
-    if (!empty($data[0]['lat']) && !empty($data[0]['lon'])) {
-        return [
-            (float)$data[0]['lat'],
-            (float)$data[0]['lon']
-        ];
-    }
-
-    return [null, null];
+    return [10.1333, 124.8333];
 }
 
 try {
@@ -102,6 +101,16 @@ try {
         $validIdFile = 'uploads/' . $fileName;
     }
 
+    // Check if applicant with same student_id or email already exists to prevent duplicate insertion
+    if ($id <= 0) {
+        $checkStmt = $pdo->prepare("SELECT id FROM applicants WHERE student_id = ? OR (email = ? AND email != '') LIMIT 1");
+        $checkStmt->execute([$studentId, $email]);
+        $existing = $checkStmt->fetch();
+        if ($existing) {
+            $id = (int)$existing['id'];
+        }
+    }
+
     if ($id > 0) {
         // Update existing applicant
         $sql = "UPDATE applicants SET
@@ -111,9 +120,9 @@ try {
         $params = [$studentId, $firstName, $lastName, $email, $phone, $birthdate, $address, $latitude, $longitude, $school, $program, $yearLevel, $gpa, $scholarshipType, $essay];
 
         if ($transcriptFile) {
-    $sql .= ", transcript_file = ?";
-    $params[] = $transcriptFile;
-}
+            $sql .= ", transcript_file = ?";
+            $params[] = $transcriptFile;
+        }
         if ($recommendationFile) {
             $sql .= ", recommendation_file = ?";
             $params[] = $recommendationFile;
@@ -136,7 +145,7 @@ try {
             student_id, first_name, last_name, email, phone, birthdate, address, latitude, longitude, school,
             program, year_level, gpa, scholarship_type, status, gwa, gwa_req, failing_grades,
             units, enrolled, docs_complete, essay, transcript_file, recommendation_file, valid_id_file
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?, ?, ?, 1.75, 0, 21, 1, 1, ?, ?, ?, ?)");
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1.75, 0, 21, 1, 1, ?, ?, ?, ?)");
 
         $stmt->execute([
             $studentId, $firstName, $lastName, $email, $phone, $birthdate, $address, $latitude, $longitude, $school,

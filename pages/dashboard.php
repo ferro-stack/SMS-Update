@@ -9,15 +9,40 @@ require_once __DIR__ . '/../config/db_helper.php';
 
 try {
     $pdo = getDB();
-    $total_applicants = (int)$pdo->query("SELECT COUNT(*) FROM applicants")->fetchColumn();
-    $under_evaluation = (int)$pdo->query("SELECT COUNT(*) FROM applicants WHERE status IN ('review', 'interview', 'pending')")->fetchColumn();
-    $active_scholars = (int)$pdo->query("SELECT COUNT(*) FROM applicants WHERE status = 'approved'")->fetchColumn();
-    $renewal_due = (int)$pdo->query("SELECT COUNT(*) FROM renewal_retention WHERE status = 'at-risk' OR status = 'eligible'")->fetchColumn();
+
+    // Total applicants still being processed
+    $total_applicants = (int)$pdo->query("
+        SELECT COUNT(*)
+        FROM applicants
+        WHERE LOWER(status) IN ('pending', 'review', 'interview')
+    ")->fetchColumn();
+
+    // Applicants currently under evaluation
+    $under_evaluation = (int)$pdo->query("
+        SELECT COUNT(*)
+        FROM applicants
+        WHERE LOWER(status) IN ('review', 'interview')
+    ")->fetchColumn();
+
+    // Approved applicants / active scholars
+    $active_scholars = (int)$pdo->query("
+        SELECT COUNT(*)
+        FROM applicants
+        WHERE LOWER(status) = 'approved'
+    ")->fetchColumn();
+
+    // Renewal records needing attention
+    $renewal_due = (int)$pdo->query("
+        SELECT COUNT(*)
+        FROM renewal_retention
+        WHERE LOWER(status) IN ('at-risk', 'eligible')
+    ")->fetchColumn();
+
 } catch (Exception $e) {
-    $total_applicants = 142;
-    $under_evaluation = 38;
-    $active_scholars = 89;
-    $renewal_due = 15;
+    $total_applicants = 0;
+    $under_evaluation = 0;
+    $active_scholars = 0;
+    $renewal_due = 0;
 }
 ?>
 

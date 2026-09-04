@@ -22,14 +22,6 @@ include __DIR__ . '/../includes/header.php';
                 <i data-lucide="chevron-down"></i>
             </div>
 
-            <div class="select-wrap">
-                <select id="filterStatus">
-                    <option>All Status</option>
-                </select>
-                <i data-lucide="chevron-down"></i>
-            </div>
-        </div>
-
         <button class="btn-primary" id="addScholarshipBtn">
             <i data-lucide="plus"></i>
             Add Scholarship

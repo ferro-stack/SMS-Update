@@ -17,11 +17,10 @@ include __DIR__ . '/../includes/header.php';
 
             <div class="select-wrap">
                 <select id="filterType">
-                    <option>All Scholarship Types</option>
+                    <option >All Scholarship Types</option>
                 </select>
                 <i data-lucide="chevron-down"></i>
             </div>
-
             <div class="select-wrap">
                 <select id="filterStatus">
                     <option value="all">All Status</option>
@@ -31,7 +30,6 @@ include __DIR__ . '/../includes/header.php';
                 <i data-lucide="chevron-down"></i>
             </div>
         </div>
-
         <div style="display:flex; gap:10px;">
             <button class="btn-primary" id="addRecordBtn">
                 <i data-lucide="plus"></i>

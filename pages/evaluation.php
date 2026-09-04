@@ -19,17 +19,6 @@
                     <select id="filterType"><option value="all">All Scholarship Types</option></select>
                     <i data-lucide="chevron-down"></i>
                 </div>
-                <div class="select-wrap">
-                    <select id="filterStatus">
-                        <option value="all">All Status</option>
-                        <option value="review">For Review</option>
-                        <option value="interview">For Interview</option>
-                        <option value="approved">Approved</option>
-                        <option value="rejected">Rejected</option>
-                    </select>
-                    <i data-lucide="chevron-down"></i>
-                </div>
-            </div>
 
             <div class="header-actions">
                 <input type="file" id="gradeFile" hidden accept=".csv,.xlsx,.xls">

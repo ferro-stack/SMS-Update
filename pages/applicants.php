@@ -19,17 +19,12 @@
                         <i data-lucide="search"></i>
                     </div>
                     <div class="select-wrap">
-                        <select id="filterType"><option value="all">All Scholarship Types</option></select>
-                        <i data-lucide="chevron-down"></i>
-                    </div>
-                    <div class="select-wrap">
-                        <select id="filterStatus">
-                            <option value="all">All Status</option>
-                            <option value="pending">Pending</option>
-                            <option value="review">Review</option>
-                            <option value="interview">Interview</option>
-                            <option value="approved">Approved</option>
-                            <option value="rejected">Rejected</option>
+                        <select id="filterType">
+                          <option value="all">All Scholarship Types</option>
+                          <option value="CMSP">CMSP (CHED Merit Scholarship Program)</option>
+                          <option value="TDP">TDP (Tulong Dunong Program)</option>
+                          <option value="TES">TES (Tertiary Education Subsidy)</option>
+                          <option value="COSCHO">COSCHO (Scholarship for Coconut Farmers and Their Families )</option>
                         </select>
                         <i data-lucide="chevron-down"></i>
                     </div>

@@ -113,6 +113,16 @@
             ''
         );
 
+        $middleName = trim(
+            $_POST['middleName'] ??
+            $_POST['middle_name'] ??
+            ''
+        );
+
+        $gender = trim(
+            $_POST['gender'] ?? ''
+        );
+
         $studentId = trim(
             $_POST['studentId'] ??
             $_POST['student_id'] ??
@@ -122,10 +132,48 @@
         $email = trim($_POST['email'] ?? '');
         $phone = trim($_POST['phone'] ?? '');
         $birthdate = trim($_POST['birthdate'] ?? '');
+
+        /*
+        * Calculate age from birthdate.
+        * Age is not manually trusted from the form.
+        */
+        $age = null;
+
+        if (!empty($birthdate)) {
+
+            try {
+
+                $birthDateObj =
+                    new DateTime($birthdate);
+
+                $today =
+                    new DateTime();
+
+                $age =
+                    $today->diff($birthDateObj)->y;
+
+            } catch (Throwable $e) {
+
+                $age = null;
+            }
+        }
         $address = trim($_POST['address'] ?? '');
 
         $school = trim($_POST['school'] ?? '');
-        $program = trim($_POST['program'] ?? '');
+
+        $schoolYear = trim(
+            $_POST['schoolYear'] ??
+            $_POST['school_year'] ??
+            ''
+        );
+
+        $program = trim(
+            $_POST['program'] ?? ''
+        );
+
+        $major = trim(
+            $_POST['major'] ?? ''
+        );
 
         $yearLevel = trim(
             $_POST['yearLevel'] ??
@@ -151,21 +199,25 @@
         * ============================================================
         */
 
-        if (
+            if (
             empty($firstName) ||
             empty($lastName) ||
             empty($studentId) ||
-            empty($email)
+            empty($email) ||
+            empty($gender) ||
+            empty($birthdate) ||
+            empty($schoolYear) ||
+            empty($program) ||
+            empty($yearLevel)
         ) {
             sendError(
-                'Please fill out all required fields (First name, Last name, Student ID, Email).'
+                'Please fill out all required applicant and academic fields.'
             );
         }
 
         if (empty($scholarshipType)) {
             sendError('Please select a scholarship type.');
         }
-
         /*
         * ============================================================
         * GET COORDINATES
@@ -347,42 +399,51 @@
             $updateSql = "
                 UPDATE applicants
                 SET
-                    student_id = ?,
-                    first_name = ?,
-                    last_name = ?,
-                    email = ?,
-                    phone = ?,
-                    birthdate = ?,
-                    address = ?,
-                    latitude = ?,
-                    longitude = ?,
-                    school = ?,
-                    program = ?,
-                    year_level = ?,
-                    gpa = ?,
-                    scholarship_type = ?,
-                    essay = ?,
-                    updated_at = CURRENT_TIMESTAMP
+                student_id = ?,
+                first_name = ?,
+                middle_name = ?,
+                last_name = ?,
+                gender = ?,
+                email = ?,
+                phone = ?,
+                birthdate = ?,
+                age = ?,
+                address = ?,
+                latitude = ?,
+                longitude = ?,
+                school = ?,
+                school_year = ?,
+                program = ?,
+                major = ?,
+                year_level = ?,
+                gpa = ?,
+                scholarship_type = ?,
+                essay = ?,
+                updated_at = CURRENT_TIMESTAMP
             ";
 
             $updateParams = [
                 $studentId,
                 $firstName,
+                $middleName,
                 $lastName,
+                $gender,
                 $email,
                 $phone,
                 $birthdate,
+                $age,
                 $address,
                 $latitude,
                 $longitude,
                 $school,
+                $schoolYear,
                 $program,
+                $major,
                 $yearLevel,
                 $gpa,
                 $scholarshipType,
                 $essay
             ];
-
             /*
             * Only replace file columns when a new file
             * was actually uploaded.
@@ -505,33 +566,39 @@
 
         $insertSql = "
             INSERT INTO applicants (
-                student_id,
-                first_name,
-                last_name,
-                email,
-                phone,
-                birthdate,
-                address,
-                latitude,
-                longitude,
-                school,
-                program,
-                year_level,
-                gpa,
-                scholarship_type,
-                status,
-                gwa,
-                gwa_req,
-                failing_grades,
-                units,
-                enrolled,
-                docs_complete,
-                essay,
-                transcript_file,
-                recommendation_file,
-                valid_id_file
-            )
+            student_id,
+            first_name,
+            middle_name,
+            last_name,
+            gender,
+            email,
+            phone,
+            birthdate,
+            age,
+            address,
+            latitude,
+            longitude,
+            school,
+            school_year,
+            program,
+            major,
+            year_level,
+            gpa,
+            scholarship_type,
+            status,
+            gwa,
+            gwa_req,
+            failing_grades,
+            units,
+            enrolled,
+            docs_complete,
+            essay,
+            transcript_file,
+            recommendation_file,
+            valid_id_file
+        )
             VALUES (
+                ?, ?, ?, ?, ?,
                 ?, ?, ?, ?, ?,
                 ?, ?, ?, ?, ?,
                 ?, ?, ?, ?, ?,
@@ -545,29 +612,34 @@
         $insertParams = [
             $studentId,          // 1
             $firstName,          // 2
-            $lastName,           // 3
-            $email,              // 4
-            $phone,              // 5
-            $birthdate,          // 6
-            $address,            // 7
-            $latitude,           // 8
-            $longitude,          // 9
-            $school,             // 10
-            $program,            // 11
-            $yearLevel,          // 12
-            $gpa,                // 13
-            $scholarshipType,    // 14
-            $status,             // 15
-            $gpa,                // 16 - gwa
-            1.75,                // 17 - gwa_req
-            0,                   // 18 - failing_grades
-            21,                  // 19 - units
-            1,                   // 20 - enrolled
-            1,                   // 21 - docs_complete
-            $essay,              // 22
-            $transcriptFile,     // 23
-            $recommendationFile, // 24
-            $validIdFile         // 25
+            $middleName,         // 3
+            $lastName,           // 4
+            $gender,             // 5
+            $email,              // 6
+            $phone,              // 7
+            $birthdate,          // 8
+            $age,                // 9
+            $address,            // 10
+            $latitude,           // 11
+            $longitude,          // 12
+            $school,             // 13
+            $schoolYear,         // 14
+            $program,            // 15
+            $major,              // 16
+            $yearLevel,          // 17
+            $gpa,                // 18
+            $scholarshipType,    // 19
+            $status,             // 20
+            $gpa,                // 21 - gwa
+            1.75,                // 22 - gwa_req
+            0,                   // 23 - failing_grades
+            21,                  // 24 - units
+            1,                   // 25 - enrolled
+            1,                   // 26 - docs_complete
+            $essay,              // 27
+            $transcriptFile,     // 28
+            $recommendationFile, // 29
+            $validIdFile         // 30
         ];
 
         $insertStmt->execute($insertParams);

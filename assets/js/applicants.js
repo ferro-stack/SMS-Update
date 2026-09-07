@@ -60,6 +60,11 @@ const ICONS = {
     </svg>`
 };
 
+
+/* ============================================================
+   PHONE FORMAT
+============================================================ */
+
 function formatPhoneNumber(val) {
 
     if (!val)
@@ -96,6 +101,119 @@ function formatPhoneNumber(val) {
 
 
 /* ============================================================
+   PROGRAM → MAJOR
+============================================================ */
+
+function updateMajorOptions() {
+
+    const programSelect =
+        getEl("programSelect");
+
+    const majorField =
+        getEl("majorField");
+
+    const majorSelect =
+        getEl("majorSelect");
+
+    if (
+        !programSelect ||
+        !majorField ||
+        !majorSelect
+    ) {
+        return;
+    }
+
+    const program =
+        programSelect.value;
+
+    majorSelect.innerHTML = `
+        <option value="">
+            Select major
+        </option>
+    `;
+
+    let majors = [];
+
+    /*
+     * BSBA
+     */
+    if (
+        program ===
+        "Bachelor of Science in Business Administration (BSBA)"
+    ) {
+
+        majors = [
+            "Human Resource Development Management (HRDM)",
+            "Financial Management (FM)",
+            "Marketing Management (MM)"
+        ];
+    }
+
+    /*
+     * BSEd
+     */
+    else if (
+        program ===
+        "Bachelor of Secondary Education (BSEd)"
+    ) {
+
+        majors = [
+            "English",
+            "Science",
+            "Mathematics"
+        ];
+    }
+
+
+    /*
+     * Programs with Major
+     */
+    if (majors.length > 0) {
+
+        majorField.style.display =
+            "block";
+
+        majorSelect.required =
+            true;
+
+        majors.forEach(major => {
+
+            const option =
+                document.createElement("option");
+
+            option.value =
+                major;
+
+            option.textContent =
+                major;
+
+            majorSelect.appendChild(
+                option
+            );
+        });
+
+    }
+
+
+    /*
+     * Programs without Major
+     */
+    else {
+
+        majorField.style.display =
+            "none";
+
+        majorSelect.required =
+            false;
+
+        majorSelect.value = "";
+
+        formData.major = "";
+    }
+}
+
+
+/* ============================================================
    LOAD TABLE
 ============================================================ */
 
@@ -103,20 +221,8 @@ async function loadTableData() {
 
     try {
 
-        const filterStatus =
-            getEl("filterStatus");
-
-        const statusVal =
-            filterStatus
-                ? filterStatus.value
-                : "all";
-
         loadedApplicants =
-            await window.apiListApplicants(
-                statusVal === "all"
-                    ? ""
-                    : statusVal
-            );
+            await window.apiListApplicants();
 
         renderTable();
 
@@ -127,6 +233,10 @@ async function loadTableData() {
             "Error loading applicants:",
             e
         );
+
+        loadedApplicants = [];
+
+        renderTable();
     }
 }
 
@@ -149,11 +259,10 @@ function renderTable() {
     const filterType =
         getEl("filterType");
 
-    const filterStatus =
-        getEl("filterStatus");
 
     if (!tableBody)
         return;
+
 
     const query =
         searchInput
@@ -162,15 +271,12 @@ function renderTable() {
                 .trim()
             : "";
 
+
     const typeVal =
         filterType
             ? filterType.value
             : "all";
 
-    const statusVal =
-        filterStatus
-            ? filterStatus.value
-            : "all";
 
     const filtered =
         loadedApplicants.filter(app => {
@@ -186,6 +292,7 @@ function renderTable() {
                     .toLowerCase()
                     .includes(query);
 
+
             const typeMatch =
                 typeVal === "all"
 
@@ -195,23 +302,16 @@ function renderTable() {
                     .toLowerCase() ===
                 typeVal.toLowerCase();
 
-            const statusMatch =
-                statusVal === "all"
-
-                ||
-
-                (app.status || "")
-                    .toLowerCase() ===
-                statusVal.toLowerCase();
 
             return (
                 nameMatch &&
-                typeMatch &&
-                statusMatch
+                typeMatch
             );
         });
 
+
     tableBody.innerHTML = "";
+
 
     if (filtered.length === 0) {
 
@@ -228,6 +328,7 @@ function renderTable() {
         return;
     }
 
+
     if (emptyState) {
 
         emptyState.style.display =
@@ -238,14 +339,17 @@ function renderTable() {
         );
     }
 
+
     filtered.forEach(app => {
 
         const tr =
             document.createElement("tr");
 
+
         const statusLower =
             (app.status || "")
                 .toLowerCase();
+
 
         const statusBadgeClass =
             statusLower === "approved"
@@ -254,11 +358,13 @@ function renderTable() {
                     ? "badge-rejected"
                     : "badge-pending";
 
+
         const formattedStatus =
             app.status
                 ? app.status.charAt(0).toUpperCase() +
                   app.status.slice(1)
                 : "Pending";
+
 
         tr.innerHTML = `
             <td>
@@ -310,6 +416,7 @@ function renderTable() {
             </td>
         `;
 
+
         tr.addEventListener(
             "click",
             e => {
@@ -328,8 +435,10 @@ function renderTable() {
             }
         );
 
+
         tableBody.appendChild(tr);
     });
+
 
     if (typeof lucide !== "undefined")
         lucide.createIcons();
@@ -347,18 +456,22 @@ function openViewModal(app) {
     console.log("Latitude:", app.latitude);
     console.log("Longitude:", app.longitude);
 
+
     const viewOverlay =
         getEl("viewOverlay");
 
     const viewBody =
         getEl("viewBody");
 
+
     if (!viewOverlay || !viewBody)
         return;
+
 
     const statusLower =
         (app.status || "")
             .toLowerCase();
+
 
     const statusClass =
         statusLower === "approved"
@@ -367,11 +480,13 @@ function openViewModal(app) {
                 ? "badge-rejected"
                 : "badge-pending";
 
+
     const formattedStatus =
         app.status
             ? app.status.charAt(0).toUpperCase() +
               app.status.slice(1)
             : "Pending";
+
 
     viewBody.innerHTML = `
         <div class="view-detail-grid">
@@ -386,6 +501,7 @@ function openViewModal(app) {
                 </span>
             </div>
 
+
             <div class="detail-item">
                 <span class="detail-label">
                     Status
@@ -396,15 +512,62 @@ function openViewModal(app) {
                 </span>
             </div>
 
+
             <div class="detail-item full-width">
                 <span class="detail-label">
                     Full Name
                 </span>
 
                 <span class="detail-value highlight">
-                    ${app.name || "N/A"}
+                    ${
+                        [
+                            app.firstName || "",
+                            app.middleName || "",
+                            app.lastName || ""
+                        ]
+                        .join(" ")
+                        .replace(/\s+/g, " ")
+                        .trim() || "N/A"
+                    }
                 </span>
             </div>
+
+            <div class="detail-item">
+                <span class="detail-label">
+                    Gender
+                </span>
+
+                <span class="detail-value">
+                    ${app.gender || "N/A"}
+                </span>
+            </div>
+
+            <div class="detail-item">
+                <span class="detail-label">
+                    Age
+                </span>
+
+                <span class="detail-value">
+                    ${
+                        app.age !== null &&
+                        app.age !== undefined &&
+                        app.age !== ""
+                            ? app.age
+                            : "N/A"
+                    }
+                </span>
+            </div>
+
+            <div class="detail-item">
+                <span class="detail-label">
+                    Birthdate
+                </span>
+
+                <span class="detail-value">
+                    ${app.birthdate || "N/A"}
+                </span>
+            </div>
+
 
             <div class="detail-item">
                 <span class="detail-label">
@@ -416,6 +579,7 @@ function openViewModal(app) {
                 </span>
             </div>
 
+
             <div class="detail-item">
                 <span class="detail-label">
                     Phone Number
@@ -426,18 +590,62 @@ function openViewModal(app) {
                 </span>
             </div>
 
-            <div class="detail-item full-width">
+
+            <div class="detail-item">
                 <span class="detail-label">
-                    School / Program
+                    School
                 </span>
 
                 <span class="detail-value">
-                    ${app.school || "College of Maasin"}
-                    —
+                    ${app.school || "N/A"}
+                </span>
+            </div>
+
+            <div class="detail-item">
+                <span class="detail-label">
+                    School Year
+                </span>
+
+                <span class="detail-value">
+                    ${app.schoolYear || "N/A"}
+                </span>
+            </div>
+
+            <div class="detail-item">
+                <span class="detail-label">
+                    Program
+                </span>
+
+                <span class="detail-value">
                     ${app.program || "N/A"}
                 </span>
             </div>
 
+            ${
+                app.major
+                    ? `
+                    <div class="detail-item">
+                        <span class="detail-label">
+                            Major
+                        </span>
+
+                        <span class="detail-value">
+                            ${app.major}
+                        </span>
+                    </div>
+                    `
+                    : ""
+            }
+
+            <div class="detail-item">
+                <span class="detail-label">
+                    Year Level
+                </span>
+
+                <span class="detail-value">
+                    ${app.yearLevel || "N/A"}
+                </span>
+            </div>
             <div class="detail-item">
                 <span class="detail-label">
                     Scholarship Type
@@ -447,6 +655,7 @@ function openViewModal(app) {
                     ${app.scholarshipType || "N/A"}
                 </span>
             </div>
+
 
             <div class="detail-item">
                 <span class="detail-label">
@@ -458,6 +667,7 @@ function openViewModal(app) {
                 </span>
             </div>
 
+
             <div class="detail-item full-width">
                 <span class="detail-label">
                     Home Address
@@ -468,10 +678,12 @@ function openViewModal(app) {
                 </span>
             </div>
 
+
             <div
                 id="applicantMap"
                 style="height: 300px; width: 200%; margin-top: 15px;"
             ></div>
+
 
             ${
                 app.remarks
@@ -492,6 +704,7 @@ function openViewModal(app) {
         </div>
     `;
 
+
     if (
         app.latitude &&
         app.longitude &&
@@ -507,6 +720,7 @@ function openViewModal(app) {
                 15
             );
 
+
         L.tileLayer(
             "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
             {
@@ -514,6 +728,7 @@ function openViewModal(app) {
                     "&copy; OpenStreetMap contributors"
             }
         ).addTo(map);
+
 
         L.marker([
             Number(app.latitude),
@@ -526,10 +741,14 @@ function openViewModal(app) {
             )
             .openPopup();
 
+
         setTimeout(() => {
+
             map.invalidateSize();
+
         }, 200);
     }
+
 
     viewOverlay.classList.add("open");
 }
@@ -557,32 +776,49 @@ window.editApplicant =
             typeof event.stopPropagation ===
             "function"
         ) {
+
             event.stopPropagation();
         }
 
+
         closeViewModal();
+
 
         try {
 
             const app =
                 await window.apiGetApplicant(id);
 
+
             editingApplicantId =
                 Number(id);
+
 
             const fId =
                 document.querySelector(
                     '[data-field="studentId"]'
                 );
 
+
             const fFirst =
                 document.querySelector(
                     '[data-field="firstName"]'
                 );
 
+
             const fLast =
                 document.querySelector(
                     '[data-field="lastName"]'
+                );
+
+            const fMiddle =
+                document.querySelector(
+                    '[data-field="middleName"]'
+                );
+
+            const fGender =
+                document.querySelector(
+                    '[data-field="gender"]'
                 );
 
             const fEmail =
@@ -590,14 +826,21 @@ window.editApplicant =
                     '[data-field="email"]'
                 );
 
+
             const fPhone =
                 document.querySelector(
                     '[data-field="phone"]'
                 );
 
+
             const fBirth =
                 document.querySelector(
                     '[data-field="birthdate"]'
+                );
+
+            const fAge =
+                document.querySelector(
+                    '[data-field="age"]'
                 );
 
             const fAddr =
@@ -605,19 +848,33 @@ window.editApplicant =
                     '[data-field="address"]'
                 );
 
+
             const fSchool =
                 document.querySelector(
                     '[data-field="school"]'
                 );
+
 
             const fProg =
                 document.querySelector(
                     '[data-field="program"]'
                 );
 
+
+            const fMajor =
+                document.querySelector(
+                    '[data-field="major"]'
+                );
+
+
             const fYear =
                 document.querySelector(
                     '[data-field="yearLevel"]'
+                );
+
+            const fSchoolYear =
+                document.querySelector(
+                    '[data-field="schoolYear"]'
                 );
 
             const fGpa =
@@ -625,67 +882,114 @@ window.editApplicant =
                     '[data-field="gpa"]'
                 );
 
+
             const fType =
                 document.querySelector(
                     '[data-field="scholarshipType"]'
                 );
+
 
             const fEssay =
                 document.querySelector(
                     '[data-field="essay"]'
                 );
 
+
             if (fId)
                 fId.value =
                     app.studentId || "";
+
 
             if (fFirst)
                 fFirst.value =
                     app.firstName || "";
 
+            if (fMiddle)
+                fMiddle.value =
+                    app.middleName || "";
+
             if (fLast)
                 fLast.value =
                     app.lastName || "";
+
+            if (fGender)
+                fGender.value =
+                    app.gender || "";
 
             if (fEmail)
                 fEmail.value =
                     app.email || "";
 
+
             if (fPhone)
                 fPhone.value =
                     app.phone || "";
+
 
             if (fBirth)
                 fBirth.value =
                     app.birthdate || "";
 
+            if (fAge)
+                fAge.value =
+                    app.age || "";
+
             if (fAddr)
                 fAddr.value =
                     app.address || "";
+
 
             if (fSchool)
                 fSchool.value =
                     app.school || "";
 
+            if (fSchoolYear)
+                fSchoolYear.value =
+                    app.schoolYear || "";
+
+
+            /*
+             * Set Program first.
+             */
             if (fProg)
                 fProg.value =
                     app.program || "";
+
+
+            /*
+             * Build the correct Major options
+             * based on the saved Program.
+             */
+            updateMajorOptions();
+
+
+            /*
+             * Restore saved Major.
+             */
+            if (fMajor)
+                fMajor.value =
+                    app.major || "";
+
 
             if (fYear)
                 fYear.value =
                     app.yearLevel || "";
 
+
             if (fGpa)
                 fGpa.value =
                     app.gpa || "";
+
 
             if (fType)
                 fType.value =
                     app.scholarshipType || "";
 
+
             if (fEssay)
                 fEssay.value =
                     app.essay || "";
+
 
             /*
              * Keep formData synchronized
@@ -704,13 +1008,16 @@ window.editApplicant =
                         return;
                     }
 
+
                     const key =
                         el.dataset.field;
+
 
                     if (key)
                         formData[key] =
                             el.value;
                 });
+
 
             openModal(true);
 
@@ -721,6 +1028,7 @@ window.editApplicant =
                 "Edit applicant error:",
                 e
             );
+
 
             alert(
                 "Could not load applicant data for edit."
@@ -741,19 +1049,25 @@ window.confirmDeleteApplicant =
             typeof event.stopPropagation ===
             "function"
         ) {
+
             event.stopPropagation();
         }
 
+
         closeViewModal();
+
 
         const targetId =
             Number(id);
 
+
         if (!targetId)
             return;
 
+
         deletingApplicantId =
             targetId;
+
 
         const item =
             loadedApplicants.find(
@@ -762,11 +1076,14 @@ window.confirmDeleteApplicant =
                     targetId
             );
 
+
         const deleteTargetName =
             getEl("deleteTargetName");
 
+
         const deleteConfirmOverlay =
             getEl("deleteConfirmOverlay");
+
 
         if (deleteTargetName) {
 
@@ -780,6 +1097,7 @@ window.confirmDeleteApplicant =
                     : `Applicant #${targetId}`;
         }
 
+
         if (deleteConfirmOverlay)
             deleteConfirmOverlay.classList.add(
                 "open"
@@ -792,10 +1110,12 @@ function closeDeleteModal() {
     const deleteConfirmOverlay =
         getEl("deleteConfirmOverlay");
 
+
     if (deleteConfirmOverlay)
         deleteConfirmOverlay.classList.remove(
             "open"
         );
+
 
     deletingApplicantId = null;
 }
@@ -810,38 +1130,51 @@ function renderProgress() {
     const progressBar =
         getEl("progressBar");
 
+
     if (!progressBar)
         return;
 
+
     progressBar.innerHTML = "";
+
 
     STEPS.forEach((step, i) => {
 
         const wrap =
             document.createElement("div");
 
+
         wrap.className =
             "progress-step";
+
 
         const isCompleted =
             i < currentIndex;
 
+
         const isCurrent =
             i === currentIndex;
+
 
         const isReachable =
             i <= furthestIndex;
 
+
         const btn =
             document.createElement("button");
+
 
         btn.className =
             "step-btn";
 
-        btn.type = "button";
+
+        btn.type =
+            "button";
+
 
         btn.disabled =
             !isReachable;
+
 
         btn.innerHTML = `
             <span class="step-circle ${
@@ -869,6 +1202,7 @@ function renderProgress() {
             </span>
         `;
 
+
         btn.addEventListener(
             "click",
             () => {
@@ -882,7 +1216,9 @@ function renderProgress() {
             }
         );
 
+
         wrap.appendChild(btn);
+
 
         if (
             i <
@@ -892,6 +1228,7 @@ function renderProgress() {
             const line =
                 document.createElement("div");
 
+
             line.className =
                 "step-line" +
                 (
@@ -900,8 +1237,10 @@ function renderProgress() {
                         : ""
                 );
 
+
             wrap.appendChild(line);
         }
+
 
         progressBar.appendChild(wrap);
     });
@@ -917,34 +1256,43 @@ function render() {
     const stepCounter =
         getEl("stepCounter");
 
+
     const modalFooter =
         getEl("modalFooter");
+
 
     const backBtn =
         getEl("backBtn");
 
+
     const nextBtn =
         getEl("nextBtn");
+
 
     document
         .querySelectorAll(".step-panel")
         .forEach(panel => {
+
             panel.classList.remove(
                 "active"
             );
         });
+
 
     const activePanel =
         document.querySelector(
             `.step-panel[data-step="${currentIndex}"]`
         );
 
+
     if (activePanel)
         activePanel.classList.add(
             "active"
         );
 
+
     renderProgress();
+
 
     if (stepCounter) {
 
@@ -952,27 +1300,32 @@ function render() {
             `Step ${currentIndex + 1} of ${STEPS.length}`;
     }
 
+
     if (currentIndex === 0) {
 
         if (backBtn)
             backBtn.style.display =
                 "none";
 
+
         if (modalFooter)
             modalFooter.style.justifyContent =
                 "flex-end";
 
     }
+
     else {
 
         if (backBtn)
             backBtn.style.display =
                 "inline-flex";
 
+
         if (modalFooter)
             modalFooter.style.justifyContent =
                 "space-between";
     }
+
 
     /*
      * DO NOT REMOVE THIS.
@@ -1001,6 +1354,7 @@ function render() {
                     </svg>`;
     }
 
+
     if (modalFooter)
         modalFooter.style.display =
             "flex";
@@ -1016,34 +1370,42 @@ function showSuccess() {
     const successMsg =
         getEl("successMsg");
 
+
     const modalFooter =
         getEl("modalFooter");
+
 
     document
         .querySelectorAll(".step-panel")
         .forEach(panel => {
+
             panel.classList.remove(
                 "active"
             );
         });
+
 
     const successPanel =
         document.querySelector(
             '.step-panel[data-step="success"]'
         );
 
+
     if (successPanel)
         successPanel.classList.add(
             "active"
         );
 
+
     if (modalFooter)
         modalFooter.style.display =
             "none";
 
+
     const name =
         `${formData.firstName || "The applicant"} ${formData.lastName || ""}`
             .trim();
+
 
     if (successMsg) {
 
@@ -1066,6 +1428,7 @@ function openModal(isEdit = false) {
     const overlay =
         getEl("overlay");
 
+
     if (!isEdit) {
 
         editingApplicantId = null;
@@ -1073,6 +1436,7 @@ function openModal(isEdit = false) {
         currentIndex = 0;
 
         furthestIndex = 0;
+
 
         document
             .querySelectorAll("[data-field]")
@@ -1082,16 +1446,27 @@ function openModal(isEdit = false) {
                     el instanceof HTMLInputElement &&
                     el.type === "file"
                 ) {
+
                     el.value = "";
+
                     return;
                 }
 
+
                 el.value = "";
+
 
                 el.classList.remove(
                     "error"
                 );
             });
+
+
+        /*
+         * Reset Program → Major
+         */
+        updateMajorOptions();
+
 
         document
             .querySelectorAll(".hint")
@@ -1101,6 +1476,7 @@ function openModal(isEdit = false) {
                     "PDF, JPG, or PNG · max 5MB";
             });
 
+
         document
             .querySelectorAll(".upload-action")
             .forEach(el => {
@@ -1109,6 +1485,7 @@ function openModal(isEdit = false) {
                     "Upload";
             });
 
+
         Object
             .keys(formData)
             .forEach(k =>
@@ -1116,7 +1493,9 @@ function openModal(isEdit = false) {
             );
     }
 
+
     render();
+
 
     if (overlay)
         overlay.classList.add(
@@ -1134,16 +1513,19 @@ function closeModal() {
     const overlay =
         getEl("overlay");
 
+
     if (overlay)
         overlay.classList.remove(
             "open"
         );
+
 
     currentIndex = 0;
 
     furthestIndex = 0;
 
     editingApplicantId = null;
+
 
     document
         .querySelectorAll("[data-field]")
@@ -1153,16 +1535,27 @@ function closeModal() {
                 el instanceof HTMLInputElement &&
                 el.type === "file"
             ) {
+
                 el.value = "";
             }
+
             else {
+
                 el.value = "";
             }
+
 
             el.classList.remove(
                 "error"
             );
         });
+
+
+    /*
+     * Reset Program → Major
+     */
+    updateMajorOptions();
+
 
     document
         .querySelectorAll(".hint")
@@ -1172,6 +1565,7 @@ function closeModal() {
                 "PDF, JPG, or PNG · max 5MB";
         });
 
+
     document
         .querySelectorAll(".upload-action")
         .forEach(el => {
@@ -1180,11 +1574,13 @@ function closeModal() {
                 "Upload";
         });
 
+
     Object
         .keys(formData)
         .forEach(k =>
             delete formData[k]
         );
+
 
     render();
 
@@ -1201,11 +1597,13 @@ function initApplicantsPage() {
     const applicantForm =
         getEl("applicantForm");
 
+
     if (applicantForm) {
 
         applicantForm.addEventListener(
             "submit",
             e => {
+
                 e.preventDefault();
             }
         );
@@ -1222,6 +1620,7 @@ function initApplicantsPage() {
 
             const target =
                 e.target;
+
 
             if (
                 target &&
@@ -1256,8 +1655,10 @@ function initApplicantsPage() {
                     const key =
                         el.dataset.field;
 
+
                     if (!key)
                         return;
+
 
                     if (
                         el instanceof HTMLInputElement &&
@@ -1269,18 +1670,22 @@ function initApplicantsPage() {
                                 ? el.files[0]
                                 : null;
 
+
                         formData[key] =
                             file || null;
+
 
                         const hint =
                             document.querySelector(
                                 `.hint[data-hint="${key}"]`
                             );
 
+
                         const action =
                             document.querySelector(
                                 `.upload-action[data-action="${key}"]`
                             );
+
 
                         if (file) {
 
@@ -1288,16 +1693,19 @@ function initApplicantsPage() {
                                 hint.textContent =
                                     file.name;
 
+
                             if (action)
                                 action.textContent =
                                     "Replace";
 
                         }
+
                         else {
 
                             if (hint)
                                 hint.textContent =
                                     "PDF, JPG, or PNG · max 5MB";
+
 
                             if (action)
                                 action.textContent =
@@ -1305,6 +1713,7 @@ function initApplicantsPage() {
                         }
 
                     }
+
                     else {
 
                         formData[key] =
@@ -1313,6 +1722,26 @@ function initApplicantsPage() {
                 }
             );
         });
+
+
+    /* ========================================================
+       PROGRAM → MAJOR
+    ======================================================== */
+
+    const programSelect =
+        getEl("programSelect");
+
+
+    if (programSelect) {
+
+        programSelect.addEventListener(
+            "change",
+            updateMajorOptions
+        );
+
+
+        updateMajorOptions();
+    }
 
 
     /* ========================================================
@@ -1330,12 +1759,14 @@ function initApplicantsPage() {
                     const action =
                         actionEl.dataset.action;
 
+
                     if (action) {
 
                         const fileInput =
                             document.querySelector(
                                 `input[data-field="${action}"]`
                             );
+
 
                         if (fileInput)
                             fileInput.click();
@@ -1352,6 +1783,7 @@ function initApplicantsPage() {
     const closeBtn =
         getEl("closeBtn");
 
+
     if (closeBtn)
         closeBtn.addEventListener(
             "click",
@@ -1361,6 +1793,7 @@ function initApplicantsPage() {
 
     const doneBtn =
         getEl("doneBtn");
+
 
     if (doneBtn)
         doneBtn.addEventListener(
@@ -1375,6 +1808,7 @@ function initApplicantsPage() {
 
     const backBtn =
         getEl("backBtn");
+
 
     if (backBtn) {
 
@@ -1400,6 +1834,7 @@ function initApplicantsPage() {
     const nextBtn =
         getEl("nextBtn");
 
+
     if (nextBtn) {
 
         nextBtn.addEventListener(
@@ -1407,6 +1842,7 @@ function initApplicantsPage() {
             async e => {
 
                 e.preventDefault();
+
 
                 /*
                  * Clear old errors.
@@ -1420,13 +1856,16 @@ function initApplicantsPage() {
                         );
                     });
 
+
                 const currentPanel =
                     document.querySelector(
                         `.step-panel[data-step="${currentIndex}"]`
                     );
 
+
                 if (!currentPanel)
                     return;
+
 
                 /*
                  * Validate required fields.
@@ -1436,7 +1875,9 @@ function initApplicantsPage() {
                         "[required]"
                     );
 
+
                 let hasError = false;
+
 
                 requiredFields.forEach(
                     field => {
@@ -1462,13 +1903,16 @@ function initApplicantsPage() {
                                     "error"
                                 );
 
+
                                 if (!hasError)
                                     field.focus();
+
 
                                 hasError = true;
                             }
 
                         }
+
                         else {
 
                             if (
@@ -1480,14 +1924,17 @@ function initApplicantsPage() {
                                     "error"
                                 );
 
+
                                 if (!hasError)
                                     field.focus();
+
 
                                 hasError = true;
                             }
                         }
                     }
                 );
+
 
                 if (hasError)
                     return;
@@ -1511,18 +1958,23 @@ function initApplicantsPage() {
                         return;
                     }
 
+
                     const form =
                         document.getElementById(
                             "applicantForm"
                         );
 
+
                     if (!form)
                         return;
+
 
                     window.isSavingApplicant =
                         true;
 
+
                     nextBtn.disabled = true;
+
 
                     nextBtn.textContent =
                         "Saving...";
@@ -1544,6 +1996,7 @@ function initApplicantsPage() {
                                     editingApplicantId
                                 );
 
+
                             if (
                                 !result ||
                                 !result.success
@@ -1554,6 +2007,7 @@ function initApplicantsPage() {
                                     "Failed to update the applicant."
                                 );
                             }
+
 
                             alert(
                                 "Applicant updated successfully."
@@ -1599,6 +2053,7 @@ function initApplicantsPage() {
                                     result.existingApplicant ||
                                     {};
 
+
                                 const existingName =
                                     [
                                         existing.firstName ||
@@ -1609,13 +2064,16 @@ function initApplicantsPage() {
                                     .join(" ")
                                     .trim();
 
+
                                 const existingScholarship =
                                     existing.scholarshipType ||
                                     "Unknown scholarship";
 
+
                                 const existingStatus =
                                     existing.status ||
                                     "Unknown";
+
 
                                 const confirmMessage =
                                     "An application already exists " +
@@ -1664,6 +2122,7 @@ function initApplicantsPage() {
                                         "The existing application was not changed."
                                     );
 
+
                                     return;
                                 }
 
@@ -1678,6 +2137,7 @@ function initApplicantsPage() {
                                         existing.id
                                     );
 
+
                                 if (
                                     !result ||
                                     !result.success
@@ -1688,6 +2148,7 @@ function initApplicantsPage() {
                                         "Failed to update the existing applicant."
                                     );
                                 }
+
 
                                 alert(
                                     "The existing applicant has been updated successfully."
@@ -1735,6 +2196,7 @@ function initApplicantsPage() {
 
                         await loadTableData();
 
+
                         if (
                             typeof window.updateNavCounts ===
                             "function"
@@ -1743,9 +2205,11 @@ function initApplicantsPage() {
                             window.updateNavCounts();
                         }
 
+
                         showSuccess();
 
                     }
+
                     catch (err) {
 
                         console.error(
@@ -1753,19 +2217,23 @@ function initApplicantsPage() {
                             err
                         );
 
+
                         alert(
                             err.message ||
                             "Failed to submit application."
                         );
 
                     }
+
                     finally {
 
                         window.isSavingApplicant =
                             false;
 
+
                         nextBtn.disabled =
                             false;
+
 
                         /*
                          * Restore correct button text.
@@ -1775,6 +2243,7 @@ function initApplicantsPage() {
                                 ? "Update Application"
                                 : "Submit Application";
                     }
+
 
                     return;
                 }
@@ -1786,11 +2255,13 @@ function initApplicantsPage() {
 
                 currentIndex++;
 
+
                 furthestIndex =
                     Math.max(
                         furthestIndex,
                         currentIndex
                     );
+
 
                 render();
             }
@@ -1805,6 +2276,7 @@ function initApplicantsPage() {
     const overlay =
         getEl("overlay");
 
+
     if (overlay) {
 
         overlay.addEventListener(
@@ -1815,6 +2287,7 @@ function initApplicantsPage() {
                     e.target ===
                     overlay
                 ) {
+
                     closeModal();
                 }
             }
@@ -1829,6 +2302,7 @@ function initApplicantsPage() {
     const deleteConfirmOverlay =
         getEl("deleteConfirmOverlay");
 
+
     if (deleteConfirmOverlay) {
 
         deleteConfirmOverlay.addEventListener(
@@ -1839,6 +2313,7 @@ function initApplicantsPage() {
                     e.target ===
                     deleteConfirmOverlay
                 ) {
+
                     closeDeleteModal();
                 }
             }
@@ -1853,6 +2328,7 @@ function initApplicantsPage() {
     const viewOverlay =
         getEl("viewOverlay");
 
+
     if (viewOverlay) {
 
         viewOverlay.addEventListener(
@@ -1863,6 +2339,7 @@ function initApplicantsPage() {
                     e.target ===
                     viewOverlay
                 ) {
+
                     closeViewModal();
                 }
             }
@@ -1877,6 +2354,7 @@ function initApplicantsPage() {
     const deleteConfirmBtn =
         getEl("deleteConfirmBtn");
 
+
     if (deleteConfirmBtn) {
 
         deleteConfirmBtn.addEventListener(
@@ -1885,6 +2363,7 @@ function initApplicantsPage() {
 
                 if (!deletingApplicantId)
                     return;
+
 
                 try {
 
@@ -1897,6 +2376,7 @@ function initApplicantsPage() {
                             ? window.API_BASE
                             : "api";
 
+
                     const res =
                         await fetch(
                             `${apiPath}/delete_applicant.php?id=${deletingApplicantId}`,
@@ -1905,14 +2385,18 @@ function initApplicantsPage() {
                             }
                         );
 
+
                     const json =
                         await res.json();
+
 
                     if (json.success) {
 
                         closeDeleteModal();
 
+
                         await loadTableData();
+
 
                         if (
                             typeof window.updateNavCounts ===
@@ -1923,6 +2407,7 @@ function initApplicantsPage() {
                         }
 
                     }
+
                     else {
 
                         alert(
@@ -1932,12 +2417,14 @@ function initApplicantsPage() {
                     }
 
                 }
+
                 catch (e) {
 
                     console.error(
                         "Delete applicant error:",
                         e
                     );
+
 
                     alert(
                         "Server error when deleting applicant."
@@ -1955,14 +2442,17 @@ function initApplicantsPage() {
     const deleteCloseBtn =
         getEl("deleteCloseBtn");
 
+
     if (deleteCloseBtn)
         deleteCloseBtn.addEventListener(
             "click",
             closeDeleteModal
         );
 
+
     const deleteCancelBtn =
         getEl("deleteCancelBtn");
+
 
     if (deleteCancelBtn)
         deleteCancelBtn.addEventListener(
@@ -1978,14 +2468,17 @@ function initApplicantsPage() {
     const viewCloseBtn =
         getEl("viewCloseBtn");
 
+
     if (viewCloseBtn)
         viewCloseBtn.addEventListener(
             "click",
             closeViewModal
         );
 
+
     const viewCloseBtn2 =
         getEl("viewCloseBtn2");
+
 
     if (viewCloseBtn2)
         viewCloseBtn2.addEventListener(
@@ -2000,6 +2493,7 @@ function initApplicantsPage() {
 
     const searchInput =
         getEl("searchInput");
+
 
     if (searchInput) {
 
@@ -2017,27 +2511,12 @@ function initApplicantsPage() {
     const filterType =
         getEl("filterType");
 
+
     if (filterType) {
 
         filterType.addEventListener(
             "change",
             renderTable
-        );
-    }
-
-
-    /* ========================================================
-       FILTER STATUS
-    ======================================================== */
-
-    const filterStatus =
-        getEl("filterStatus");
-
-    if (filterStatus) {
-
-        filterStatus.addEventListener(
-            "change",
-            loadTableData
         );
     }
 
@@ -2050,6 +2529,7 @@ function initApplicantsPage() {
         document.querySelector(
             '[data-field="studentId"]'
         );
+
 
     if (studentId) {
 
@@ -2075,6 +2555,7 @@ function initApplicantsPage() {
         document.querySelector(
             '[data-field="phone"]'
         );
+
 
     if (phoneNumber) {
 

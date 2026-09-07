@@ -34,15 +34,20 @@ function initDatabase(): PDO {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         student_id TEXT NOT NULL,
         first_name TEXT NOT NULL,
+        middle_name TEXT DEFAULT '',
         last_name TEXT NOT NULL,
+        gender TEXT DEFAULT '',
         email TEXT NOT NULL,
         phone TEXT,
         birthdate TEXT,
+        age INTEGER DEFAULT NULL,
         address TEXT,
         latitude REAL,
         longitude REAL,
         school TEXT,
+        school_year TEXT DEFAULT '',
         program TEXT,
+        major TEXT DEFAULT '',
         year_level TEXT,
         gpa REAL DEFAULT 0,
         scholarship_type TEXT NOT NULL,
@@ -61,17 +66,72 @@ function initDatabase(): PDO {
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )");
-    // Add location columns if they don't already exist
-$columns = $pdo->query("PRAGMA table_info(applicants)")->fetchAll(PDO::FETCH_ASSOC);
-$columnNames = array_column($columns, 'name');
 
-if (!in_array('latitude', $columnNames)) {
-    $pdo->exec("ALTER TABLE applicants ADD COLUMN latitude REAL");
-}
+    // ------------------------------------------------------------
+    // UPDATE EXISTING APPLICANTS TABLE
+    // Adds new columns without deleting existing applicant data.
+    // ------------------------------------------------------------
 
-if (!in_array('longitude', $columnNames)) {
-    $pdo->exec("ALTER TABLE applicants ADD COLUMN longitude REAL");
-}
+    $columns = $pdo->query("
+        PRAGMA table_info(applicants)
+    ")->fetchAll(PDO::FETCH_ASSOC);
+
+    $columnNames = array_column($columns, 'name');
+
+    // Middle Name
+    if (!in_array('middle_name', $columnNames, true)) {
+        $pdo->exec("
+            ALTER TABLE applicants
+            ADD COLUMN middle_name TEXT DEFAULT ''
+        ");
+    }
+
+    // Gender
+    if (!in_array('gender', $columnNames, true)) {
+        $pdo->exec("
+            ALTER TABLE applicants
+            ADD COLUMN gender TEXT DEFAULT ''
+        ");
+    }
+
+    // Age
+    if (!in_array('age', $columnNames, true)) {
+        $pdo->exec("
+            ALTER TABLE applicants
+            ADD COLUMN age INTEGER DEFAULT NULL
+        ");
+    }
+
+    // School Year
+    if (!in_array('school_year', $columnNames, true)) {
+        $pdo->exec("
+            ALTER TABLE applicants
+            ADD COLUMN school_year TEXT DEFAULT ''
+        ");
+    }
+
+    // Major
+    if (!in_array('major', $columnNames, true)) {
+        $pdo->exec("
+            ALTER TABLE applicants
+            ADD COLUMN major TEXT DEFAULT ''
+        ");
+    }
+
+    // Location columns
+    if (!in_array('latitude', $columnNames, true)) {
+        $pdo->exec("
+            ALTER TABLE applicants
+            ADD COLUMN latitude REAL
+        ");
+    }
+
+    if (!in_array('longitude', $columnNames, true)) {
+        $pdo->exec("
+            ALTER TABLE applicants
+            ADD COLUMN longitude REAL
+        ");
+    }
 
     // 4. Notifications Table
     $pdo->exec("CREATE TABLE IF NOT EXISTS notifications (

@@ -78,68 +78,349 @@
             <!-- Body -->
             <div class="applicant-modal-body">
               <!-- Step 1: Personal -->
-              <div class="step-panel active" data-step="0">
+            <div class="step-panel active" data-step="0">
               <div class="step-title">
                 <h3>Personal information</h3>
                 <p>Basic contact details for the applicant.</p>
               </div>
+
               <br>
+
               <div class="grid-2">
+
                 <div class="field">
                   <label>First name <span class="req">*</span></label>
-                  <input type="text" name="first_name" placeholder="Juan" data-field="firstName" required>
+                  <input
+                    type="text"
+                    name="first_name"
+                    placeholder="Juan"
+                    data-field="firstName"
+                    required
+                  >
                 </div>
+
+                <div class="field">
+                  <label>Middle name</label>
+                  <input
+                    type="text"
+                    name="middle_name"
+                    placeholder="Santos"
+                    data-field="middleName"
+                  >
+                </div>
+
                 <div class="field">
                   <label>Last name <span class="req">*</span></label>
-                  <input type="text" name="last_name" placeholder="Dela Cruz" data-field="lastName" required>
+                  <input
+                    type="text"
+                    name="last_name"
+                    placeholder="Dela Cruz"
+                    data-field="lastName"
+                    required
+                  >
                 </div>
+
+                <div class="field">
+                  <label>Gender <span class="req">*</span></label>
+                  <select
+                    name="gender"
+                    data-field="gender"
+                    required
+                  >
+                    <option value="">Select gender</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                  </select>
+                </div>
+
                 <div class="field">
                   <label>Student ID <span class="req">*</span></label>
-                  <input type="text" name="student_id" placeholder="2023-00123" data-field="studentId" inputmode="numeric" required>
+                  <input
+                    type="text"
+                    name="student_id"
+                    placeholder="2023-00123"
+                    data-field="studentId"
+                    inputmode="numeric"
+                    required
+                  >
                 </div>
+
                 <div class="field">
                   <label>Email address <span class="req">*</span></label>
-                  <input type="email" name="email" placeholder="juan@email.com" data-field="email" required>
+                  <input
+                    type="email"
+                    name="email"
+                    placeholder="juan@email.com"
+                    data-field="email"
+                    required
+                  >
                 </div>
+
                 <div class="field">
                   <label>Phone number <span class="req">*</span></label>
-                  <input type="text" name="phone" placeholder="0900 000 0000" data-field="phone" inputmode="tel" maxlength="15" required></div>
+                  <input
+                    type="text"
+                    name="phone"
+                    placeholder="0900 000 0000"
+                    data-field="phone"
+                    inputmode="tel"
+                    maxlength="15"
+                    required
+                  >
+                </div>
+
                 <div class="field">
                   <label>Date of birth <span class="req">*</span></label>
-                  <input type="date" name="birthdate" data-field="birthdate" required></div>
+                  <input
+                    type="date"
+                    name="birthdate"
+                    data-field="birthdate"
+                    required
+                  >
+                </div>
+
+                <div class="field">
+                  <label>Age</label>
+                  <input
+                    type="number"
+                    name="age"
+                    data-field="age"
+                    placeholder="Automatically calculated"
+                    readonly
+                  >
+                </div>
+
                 <div class="field">
                   <label>Home address <span class="req">*</span></label>
-                  <input type="text" name="address" placeholder="Street,Barangay,City,Province" data-field="address" required></div>
+                  <input
+                    type="text"
+                    name="address"
+                    placeholder="Street, Barangay, City, Province"
+                    data-field="address"
+                    required
+                  >
+                </div>
+
               </div>
             </div>
             <!-- Step 2: Academic -->
             <div class="step-panel" data-step="1">
-              <div class="step-title">
-                <h3>Academic background</h3>
-                <p>Where the applicant currently studies.</p>
-              </div>
-              <div class="grid-2">
-                <div class="field">
-                  <label>School / University <span class="req">*</span></label>
-                  <input type="text" name="school" placeholder="University name" data-field="school" required></div>
-                <div class="field">
-                  <label>Program / Course <span class="req">*</span></label>
-                  <input type="text" name="program" placeholder="BS Computer Science" data-field="program" required></div>
-                <div class="field">
-                  <label>Year level <span class="req">*</span></label>
-                  <select data-field="yearLevel"required name="year_level">
-                    <option value="">Select year level</option>
-                    <option>1st Year</option>
-                    <option>2nd Year</option>
-                    <option>3rd Year</option>
-                    <option>4th Year</option>
 
-                  </select>
+                <div class="step-title">
+                    <h3>Academic background</h3>
+                    <p>Where the applicant currently studies.</p>
                 </div>
-                <div class="field"><label>GPA / General average <span class="req">*</span></label><input type="text" name="gpa" placeholder="e.g. 1.75 or 92%" data-field="gpa" required></div>
-              </div>
-            </div>
 
+                <div class="grid-2">
+
+                    <!-- SCHOOL -->
+                    <div class="field">
+                        <label>
+                            School / University
+                            <span class="req">*</span>
+                        </label>
+
+                        <input
+                            type="text"
+                            name="school"
+                            placeholder="College of Maasin"
+                            data-field="school"
+                            required
+                        >
+                    </div>
+
+
+                    <!-- SCHOOL YEAR -->
+                    <div class="field">
+                        <label>
+                            School Year
+                            <span class="req">*</span>
+                        </label>
+
+                        <select
+                            name="school_year"
+                            data-field="schoolYear"
+                            required
+                        >
+                            <option value="">
+                                Select school year
+                            </option>
+
+                            <option value="2025-2026">
+                                2025-2026
+                            </option>
+
+                            <option value="2026-2027">
+                                2026-2027
+                            </option>
+
+                            <option value="2027-2028">
+                                2027-2028
+                            </option>
+
+                            <option value="2028-2029">
+                                2028-2029
+                            </option>
+
+                            <option value="2029-2030">
+                                2029-2030
+                            </option>
+                        </select>
+                    </div>
+
+
+                    <!-- PROGRAM -->
+                    <div class="field">
+                        <label>
+                            Program
+                            <span class="req">*</span>
+                        </label>
+
+                        <select
+                            name="program"
+                            id="programSelect"
+                            data-field="program"
+                            required
+                        >
+
+                            <option value="">
+                                Select program
+                            </option>
+
+                            <option value="Bachelor of Science in Accountancy (BSA)">
+                                Bachelor of Science in Accountancy (BSA)
+                            </option>
+
+                            <option value="Bachelor of Science in Business Administration (BSBA)">
+                                Bachelor of Science in Business Administration (BSBA)
+                            </option>
+
+                            <option value="Bachelor of Science in Information Technology (BSIT)">
+                                Bachelor of Science in Information Technology (BSIT)
+                            </option>
+
+                            <option value="Bachelor of Science in Nursing (BSN)">
+                                Bachelor of Science in Nursing (BSN)
+                            </option>
+
+                            <option value="Bachelor of Arts in Political Science (BAPolSci)">
+                                Bachelor of Arts in Political Science (BAPolSci)
+                            </option>
+
+                            <option value="Bachelor of Elementary Education (BEEd)">
+                                Bachelor of Elementary Education (BEEd)
+                            </option>
+
+                            <option value="Bachelor of Secondary Education (BSEd)">
+                                Bachelor of Secondary Education (BSEd)
+                            </option>
+
+                            <option value="Master in Public Administration (MPA)">
+                                Master in Public Administration (MPA)
+                            </option>
+
+                            <option value="Juris Doctor (JD)">
+                                Juris Doctor (JD)
+                            </option>
+
+                            <option value="Food Preparation and Service Technology">
+                                Food Preparation and Service Technology
+                            </option>
+
+                            <option value="Bookkeeping NC II">
+                                Bookkeeping NC II
+                            </option>
+
+                            <option value="Caregiving NC II">
+                                Caregiving NC II
+                            </option>
+
+                            <option value="Bread and Pastry Production NC II">
+                                Bread and Pastry Production NC II
+                            </option>
+
+                        </select>
+                    </div>
+
+
+                    <!-- MAJOR -->
+                    <div
+                        class="field"
+                        id="majorField"
+                        style="display: none;"
+                    >
+                        <label>
+                            Major
+                            <span class="req">*</span>
+                        </label>
+
+                        <select
+                            name="major"
+                            id="majorSelect"
+                            data-field="major"
+                        >
+                            <option value="">
+                                Select major
+                            </option>
+                        </select>
+                    </div>
+
+                    <!-- YEAR LEVEL -->
+                    <div class="field">
+                        <label>
+                            Year level
+                            <span class="req">*</span>
+                        </label>
+
+                        <select
+                            name="year_level"
+                            data-field="yearLevel"
+                            required
+                        >
+
+                            <option value="">
+                                Select year level
+                            </option>
+
+                            <option value="1st Year">
+                                1st Year
+                            </option>
+
+                            <option value="2nd Year">
+                                2nd Year
+                            </option>
+
+                            <option value="3rd Year">
+                                3rd Year
+                            </option>
+
+                            <option value="4th Year">
+                                4th Year
+                            </option>
+
+                        </select>
+                    </div>
+
+
+                    <!-- GPA -->
+                    <div class="field">
+                        <label>
+                            GPA / General average
+                            <span class="req">*</span>
+                        </label>
+
+                        <input
+                            type="text"
+                            name="gpa"
+                            placeholder="e.g. 1.75 or 92%"
+                            data-field="gpa"
+                            required
+                        >
+                    </div>
+
+                </div>
+
+            </div>
             <!-- Step 3: Scholarship -->
             <div class="step-panel" data-step="2">
               <div class="step-title">

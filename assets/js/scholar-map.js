@@ -20,14 +20,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // Program & Department Color Palette
 const departmentColors = {
-    "Nursing": "#ea3388",
-    "Information Technology": "#2ea263",
-    "Accountancy": "#8426dc",
+    "Nursing": "#ec4899",
+    "Information Technology": "#2563eb",
+    "Accountancy": "#7c3aed",
     "Business Administration": "#f59e0b",
-    "Liberal Arts and Education": "#11a1da",
-    "Food Preparation & Service Technology": "#08b2a4",
+    "Food Preparation & Service Technology": "#14b8a6",
+    "Political Science": "#84cc16",
+    "Elementary Education": "#16a34a",
+    "Secondary Education": "#06b6d4",
+    "Public Administration": "#f97316",
+    "Juris Doctor": "#dc2626",
+    "Bookkeeping": "#eab308",
+    "Caregiver": "#0f766e",
+    "Bread & Pastry Production": "#be185d",
     "Other": "#64748b"
 };
+
 
 function normalizeDepartment(deptStr) {
     const d = (deptStr || "").toLowerCase();
@@ -49,11 +57,6 @@ function normalizeDepartment(deptStr) {
     if (d.includes("business")) {
         return "Business Administration";
     }
-
-    if (d.includes("liberal") || d.includes("education")) {
-        return "Liberal Arts and Education";
-    }
-
     if (
         d.includes("food") ||
         d.includes("service") ||
@@ -61,8 +64,53 @@ function normalizeDepartment(deptStr) {
     ) {
         return "Food Preparation & Service Technology";
     }
-
-    return "Information Technology";
+    if (
+        d.includes("political")
+    ) {
+        return "Political Science";
+    }
+    if (
+        d.includes("Elementary") ||
+        d.includes("Education")
+    ) {
+        return "Elementary Education";
+    }
+    if (
+        d.includes("secondary") ||
+        d.includes("education")
+    ) {
+        return "Secondary Education";
+    }
+    if (
+        d.includes("public") ||
+        d.includes("administration")
+    ){
+        return "Public Administration";
+    }
+    if (
+        d.includes("juris")||
+        d.includes("doctors")
+    ) {
+        return "Juris Doctor";
+    }
+    if (
+        d.includes("bookkeeping")
+    ){
+        return "Bookkeeping";
+    }
+    if (
+        d.includes("caregiver")
+    ){
+        return "Caregiver";
+    }
+    if (
+        d.includes("bread")||
+        d.includes("pastry")||
+        d.includes("production")
+    ){
+        return "Bread & Pastry Production";
+    }
+    return "Other";
 }
 
 

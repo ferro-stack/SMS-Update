@@ -542,19 +542,19 @@ function createSystemNotification(
 
         /*
         * ============================================================
-        * CHECK EXISTING STUDENT ID + SCHOLARSHIP TYPE
+        * CHECK EXISTING STUDENT ID + SCHOLARSHIP TYPE + SCHOOL YEAR
         * ============================================================
         *
         * IMPORTANT:
         *
-        * We only consider it a duplicate when BOTH:
+        * We only consider it a duplicate when ALL of these match:
         *
         *     student_id
         *     scholarship_type
+        *     school_year
         *
-        * are the same.
-        *
-        * Same Student ID + DIFFERENT scholarship = new application.
+        * Same Student ID + DIFFERENT scholarship  = new application (allowed).
+        * Same Student ID + DIFFERENT school year  = new application (allowed).
         */
 
         $duplicateStmt = $pdo->prepare("
@@ -565,17 +565,20 @@ function createSystemNotification(
                 last_name,
                 email,
                 scholarship_type,
+                school_year,
                 status
             FROM applicants
             WHERE student_id = ?
             AND scholarship_type = ?
+            AND school_year = ?
             ORDER BY id DESC
             LIMIT 1
         ");
 
         $duplicateStmt->execute([
             $studentId,
-            $scholarshipType
+            $scholarshipType,
+            $schoolYear
         ]);
 
         $duplicate = $duplicateStmt->fetch(PDO::FETCH_ASSOC);
@@ -601,10 +604,11 @@ function createSystemNotification(
                     'lastName' => $duplicate['last_name'],
                     'email' => $duplicate['email'],
                     'scholarshipType' => $duplicate['scholarship_type'],
+                    'schoolYear' => $duplicate['school_year'],
                     'status' => $duplicate['status']
                 ],
                 'message' =>
-                    'An application with this Student ID already exists for this scholarship.'
+                    'An application with this Student ID already exists for this scholarship and school year.'
             ]);
         }
 

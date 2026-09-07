@@ -18,6 +18,13 @@ try {
         $stmtTrash = $pdo->prepare("INSERT INTO deleted_items (item_type, item_id, title, item_data, deleted_by) VALUES (?, ?, ?, ?, ?)");
         $stmtTrash->execute(['scholar', $id, $title, json_encode($scholar), 'Registrar Staff']);
 
+        // Remove matching records
+        $studentId = trim($scholar['student_id'] ?? '');
+        if ($studentId !== '') {
+            $stmtRec = $pdo->prepare("DELETE FROM records WHERE student_id = ?");
+            $stmtRec->execute([$studentId]);
+        }
+
         $stmt = $pdo->prepare("DELETE FROM scholars WHERE id = ?");
         $stmt->execute([$id]);
     }

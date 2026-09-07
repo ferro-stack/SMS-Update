@@ -1,6 +1,51 @@
 <?php
 require_once __DIR__ . '/init.php';
 
+/* ============================================================
+   COORDINATES HELPER
+============================================================ */
+function getCoordinates($address)
+{
+    if (empty($address)) {
+        return [10.1333, 124.8333];
+    }
+
+    $addrLower = strtolower($address);
+
+    if (strpos($addrLower, 'maasin') !== false) {
+        return [10.1333, 124.8333];
+    }
+    if (strpos($addrLower, 'macrohon') !== false) {
+        return [10.0833, 124.9333];
+    }
+    if (strpos($addrLower, 'batu') !== false || strpos($addrLower, 'bato') !== false) {
+        return [10.3333, 124.7833];
+    }
+    if (strpos($addrLower, 'hilongos') !== false) {
+        return [10.3739, 124.7497];
+    }
+    if (strpos($addrLower, 'padre burgos') !== false) {
+        return [10.0389, 124.9750];
+    }
+    if (strpos($addrLower, 'sogod') !== false) {
+        return [10.3833, 124.9833];
+    }
+    if (strpos($addrLower, 'malitbog') !== false) {
+        return [10.1500, 125.0000];
+    }
+    if (strpos($addrLower, 'saint bernard') !== false) {
+        return [10.3333, 125.1333];
+    }
+    if (strpos($addrLower, 'liloan') !== false) {
+        return [10.1667, 125.1333];
+    }
+    if (strpos($addrLower, 'bontoc') !== false) {
+        return [10.3500, 124.9667];
+    }
+
+    return [10.1333, 124.8333];
+}
+
 try {
     $pdo = getDB();
 
@@ -10,319 +55,131 @@ try {
         ''
     );
 
-    $list = [];
-
     /* =========================================================
-       GET STUDENT IDS THAT ARE CURRENTLY IN TRASH
+       1. GET STUDENT IDS AND RECORD IDS CURRENTLY IN TRASH
     ========================================================= */
-
     $deletedStudentIds = [];
+    $deletedRecordIds = [];
 
     $stmtDeleted = $pdo->query("
-        SELECT item_data
+        SELECT item_type, item_id, item_data
         FROM deleted_items
-        WHERE item_type = 'record'
     ");
 
-    $deletedRows = $stmtDeleted->fetchAll();
+    $deletedRows = $stmtDeleted->fetchAll(PDO::FETCH_ASSOC);
 
     foreach ($deletedRows as $deleted) {
-
-        if (empty($deleted['item_data'])) {
-            continue;
+        if ($deleted['item_type'] === 'record' && !empty($deleted['item_id'])) {
+            $deletedRecordIds[] = (int)$deleted['item_id'];
         }
 
-        $data = json_decode(
-            $deleted['item_data'],
-            true
-        );
-
-        if (
-            is_array($data) &&
-            !empty($data['student_id'])
-        ) {
-            $deletedStudentIds[] =
-                trim((string)$data['student_id']);
+        if (!empty($deleted['item_data'])) {
+            $data = json_decode($deleted['item_data'], true);
+            if (is_array($data)) {
+                if (!empty($data['student_id'])) {
+                    $deletedStudentIds[] = trim((string)$data['student_id']);
+                }
+                if ($deleted['item_type'] === 'record' && !empty($data['id'])) {
+                    $deletedRecordIds[] = (int)$data['id'];
+                }
+            }
         }
     }
 
-    $deletedStudentIds = array_unique(
-        $deletedStudentIds
-    );
-
+    $deletedStudentIds = array_unique($deletedStudentIds);
+    $deletedRecordIds = array_unique($deletedRecordIds);
 
     /* =========================================================
-       1. FETCH SCHOLARS
-
-       ONLY scholars that have an APPROVED applicant
+       2. FETCH APPROVED RECORDS
+       ONLY students from the records table that have status = 'approved'
     ========================================================= */
-
-    $sqlScholars = "
-        SELECT
-            s.id,
-            s.student_id,
-            s.name,
-            s.department,
-            s.year_level,
-            s.gwa,
-            s.status,
-            s.school_year,
-            s.address,
-            s.latitude,
-            s.longitude
-        FROM scholars s
-
-        INNER JOIN applicants a
-            ON a.student_id = s.student_id
-
-        WHERE s.latitude IS NOT NULL
-        AND s.longitude IS NOT NULL
-
-        AND LOWER(TRIM(a.status)) = 'approved'
-    ";
-
-    $params = [];
-
-
-    /* =========================================================
-       EXCLUDE DELETED STUDENTS
-    ========================================================= */
-
-    if (!empty($deletedStudentIds)) {
-
-        $placeholders = implode(
-            ',',
-            array_fill(
-                0,
-                count($deletedStudentIds),
-                '?'
-            )
-        );
-
-        $sqlScholars .= "
-            AND s.student_id NOT IN ($placeholders)
-        ";
-
-        foreach ($deletedStudentIds as $studentId) {
-            $params[] = $studentId;
-        }
-    }
-
-
-    /* =========================================================
-       DEPARTMENT FILTER
-    ========================================================= */
-
-    if (
-        !empty($department) &&
-        strtolower($department) !== 'all'
-    ) {
-
-        $sqlScholars .= "
-            AND LOWER(s.department) = LOWER(?)
-        ";
-
-        $params[] = $department;
-    }
-
-
-    $stmt1 = $pdo->prepare($sqlScholars);
-    $stmt1->execute($params);
-
-    $scholarsRows = $stmt1->fetchAll();
-
-
-    foreach ($scholarsRows as $r) {
-
-        $list[] = [
-
-            'id' =>
-                (int)$r['id'],
-
-            'studentId' =>
-                $r['student_id'],
-
-            'name' =>
-                $r['name'],
-
-            'department' =>
-                $r['department'],
-
-            'yearLevel' =>
-                (int)$r['year_level'],
-
-            'gwa' =>
-                (float)$r['gwa'],
-
-            'status' =>
-                'approved',
-
-            'schoolYear' =>
-                $r['school_year'],
-
-            'address' =>
-                $r['address'] ?? '',
-
-            'latitude' =>
-                (float)$r['latitude'],
-
-            'longitude' =>
-                (float)$r['longitude'],
-
-            'source' =>
-                'scholar'
-        ];
-    }
-
-
-    /* =========================================================
-       2. FETCH APPROVED APPLICANTS
-
-       This is the Evaluation source.
-    ========================================================= */
-
-    $sqlApp = "
+    $stmtRecords = $pdo->query("
         SELECT
             id,
+            applicant_id,
             student_id,
-            first_name,
-            last_name,
-            program,
+            name,
             scholarship_type,
             status,
-            address,
-            latitude,
-            longitude,
-            gwa,
-            year_level
-        FROM applicants
+            semester,
+            sy,
+            date_evaluated,
+            remarks
+        FROM records
+        WHERE LOWER(TRIM(status)) = 'approved'
+        ORDER BY id DESC
+    ");
 
-        WHERE latitude IS NOT NULL
-        AND longitude IS NOT NULL
+    $approvedRecords = $stmtRecords->fetchAll(PDO::FETCH_ASSOC);
 
-        AND LOWER(TRIM(status)) = 'approved'
-    ";
+    $list = [];
+    $seenStudents = [];
 
-    $appParams = [];
+    foreach ($approvedRecords as $rec) {
+        $recordId = (int)$rec['id'];
+        $studentId = trim($rec['student_id'] ?? '');
 
-
-    /* =========================================================
-       EXCLUDE DELETED STUDENTS
-    ========================================================= */
-
-    if (!empty($deletedStudentIds)) {
-
-        $placeholders = implode(
-            ',',
-            array_fill(
-                0,
-                count($deletedStudentIds),
-                '?'
-            )
-        );
-
-        $sqlApp .= "
-            AND student_id NOT IN ($placeholders)
-        ";
-
-        foreach ($deletedStudentIds as $studentId) {
-            $appParams[] = $studentId;
+        // Exclude if record or student is in trash/deleted
+        if (in_array($recordId, $deletedRecordIds, true)) {
+            continue;
         }
-    }
-
-
-    /* =========================================================
-       GET APPROVED APPLICANTS
-    ========================================================= */
-
-    $stmt2 = $pdo->prepare($sqlApp);
-    $stmt2->execute($appParams);
-
-    $appRows = $stmt2->fetchAll();
-
-
-    /* =========================================================
-       PREVENT DUPLICATES
-    ========================================================= */
-
-    $existingStudentIds = array_column(
-        $list,
-        'studentId'
-    );
-
-
-    /* =========================================================
-       ADD APPROVED APPLICANTS
-    ========================================================= */
-
-    foreach ($appRows as $r) {
-
-        if (
-            in_array(
-                $r['student_id'],
-                $existingStudentIds
-            )
-        ) {
+        if ($studentId !== '' && in_array($studentId, $deletedStudentIds, true)) {
             continue;
         }
 
-
-        /* =====================================================
-           DETERMINE DEPARTMENT
-        ===================================================== */
-
-        $prog = $r['program'] ?? '';
-
-        $dept = 'Information Technology';
-
-        if (
-            stripos($prog, 'nursing') !== false
-        ) {
-
-            $dept = 'Nursing';
-
-        } elseif (
-            stripos($prog, 'accountancy') !== false
-        ) {
-
-            $dept = 'Accountancy';
-
-        } elseif (
-            stripos($prog, 'business') !== false
-        ) {
-
-            $dept = 'Business Administration';
-
-        } elseif (
-            stripos($prog, 'education') !== false ||
-            stripos($prog, 'liberal') !== false
-        ) {
-
-            $dept =
-                'Liberal Arts and Education';
-
-        } elseif (
-            stripos($prog, 'food') !== false ||
-            stripos($prog, 'service') !== false
-        ) {
-
-            $dept =
-                'Food Preparation & Service Technology';
-
-        } elseif (
-            stripos($prog, 'technology') !== false ||
-            stripos($prog, 'computer') !== false
-        ) {
-
-            $dept =
-                'Information Technology';
+        // Avoid duplicate pins for the same approved student
+        if ($studentId !== '' && isset($seenStudents[$studentId])) {
+            continue;
+        }
+        if ($studentId !== '') {
+            $seenStudents[$studentId] = true;
         }
 
+        // Match with applicants table to retrieve academic info and address
+        $appStmt = $pdo->prepare("
+            SELECT * FROM applicants
+            WHERE student_id = ? OR id = ?
+            ORDER BY id DESC
+            LIMIT 1
+        ");
+        $appStmt->execute([$studentId, $rec['applicant_id'] ?? 0]);
+        $app = $appStmt->fetch(PDO::FETCH_ASSOC);
 
-        /* =====================================================
-           DEPARTMENT FILTER
-        ===================================================== */
+        // Fallback match with scholars table
+        $schStmt = $pdo->prepare("
+            SELECT * FROM scholars
+            WHERE student_id = ?
+            LIMIT 1
+        ");
+        $schStmt->execute([$studentId]);
+        $sch = $schStmt->fetch(PDO::FETCH_ASSOC);
 
+        $name = trim($rec['name'] ?? '');
+        if (empty($name) && $app) {
+            $name = trim(($app['first_name'] ?? '') . ' ' . ($app['last_name'] ?? ''));
+        }
+
+        // Determine department
+        $prog = $app['program'] ?? $sch['department'] ?? '';
+        $dept = 'Information Technology';
+
+        if (stripos($prog, 'nursing') !== false) {
+            $dept = 'Nursing';
+        } elseif (stripos($prog, 'accountancy') !== false || stripos($prog, 'accounting') !== false) {
+            $dept = 'Accountancy';
+        } elseif (stripos($prog, 'business') !== false) {
+            $dept = 'Business Administration';
+        } elseif (stripos($prog, 'education') !== false || stripos($prog, 'liberal') !== false) {
+            $dept = 'Liberal Arts and Education';
+        } elseif (stripos($prog, 'food') !== false || stripos($prog, 'service') !== false || stripos($prog, 'fpst') !== false) {
+            $dept = 'Food Preparation & Service Technology';
+        } elseif (stripos($prog, 'technology') !== false || stripos($prog, 'computer') !== false || stripos($prog, 'it') !== false) {
+            $dept = 'Information Technology';
+        } elseif (!empty($sch['department'])) {
+            $dept = $sch['department'];
+        }
+
+        // Department filter
         if (
             !empty($department) &&
             strtolower($department) !== 'all' &&
@@ -331,63 +188,41 @@ try {
             continue;
         }
 
+        // Determine coordinates and address
+        $lat = !empty($app['latitude']) ? (float)$app['latitude'] : (!empty($sch['latitude']) ? (float)$sch['latitude'] : null);
+        $lng = !empty($app['longitude']) ? (float)$app['longitude'] : (!empty($sch['longitude']) ? (float)$sch['longitude'] : null);
+        $address = $app['address'] ?? $sch['address'] ?? '';
 
-        /* =====================================================
-           ADD STUDENT
-        ===================================================== */
+        if (($lat === null || $lng === null || $lat == 0 || $lng == 0) && !empty($address)) {
+            $coords = getCoordinates($address);
+            $lat = $coords[0];
+            $lng = $coords[1];
+        }
+
+        if ($lat === null || $lng === null || $lat == 0 || $lng == 0) {
+            $lat = 10.1333;
+            $lng = 124.8333;
+        }
+
+        $gwa = (float)($app['gwa'] ?? $app['gpa'] ?? $sch['gwa'] ?? 1.50);
+        $yearLevel = (int)($app['year_level'] ?? $sch['year_level'] ?? 1);
 
         $list[] = [
-
-            'id' =>
-                (int)$r['id'],
-
-            'studentId' =>
-                $r['student_id'],
-
-            'name' =>
-                trim(
-                    ($r['first_name'] ?? '') .
-                    ' ' .
-                    ($r['last_name'] ?? '')
-                ),
-
-            'department' =>
-                $dept,
-
-            'yearLevel' =>
-                (int)(
-                    $r['year_level'] ?? 1
-                ),
-
-            'gwa' =>
-                (float)(
-                    $r['gwa'] ?? 1.50
-                ),
-
-            'status' =>
-                'approved',
-
-            'schoolYear' =>
-                '2025-2026',
-
-            'address' =>
-                $r['address'] ?? '',
-
-            'latitude' =>
-                (float)$r['latitude'],
-
-            'longitude' =>
-                (float)$r['longitude'],
-
-            'source' =>
-                'applicant'
+            'id' => $recordId,
+            'studentId' => $studentId,
+            'name' => $name,
+            'department' => $dept,
+            'yearLevel' => $yearLevel,
+            'gwa' => $gwa,
+            'status' => 'approved',
+            'scholarshipType' => $rec['scholarship_type'] ?? '',
+            'schoolYear' => $rec['sy'] ?? '2025-2026',
+            'address' => $address,
+            'latitude' => (float)$lat,
+            'longitude' => (float)$lng,
+            'source' => 'record'
         ];
     }
-
-
-    /* =========================================================
-       SEND RESULT
-    ========================================================= */
 
     sendJson([
         'success' => true,

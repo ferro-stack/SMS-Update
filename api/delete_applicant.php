@@ -20,6 +20,16 @@ try {
         $stmtTrash = $pdo->prepare("INSERT INTO deleted_items (item_type, item_id, title, item_data, deleted_by) VALUES (?, ?, ?, ?, ?)");
         $stmtTrash->execute(['applicant', $id, $title, json_encode($applicant), 'Registrar Staff']);
 
+        // Remove from records and scholars so deleted applicant doesn't leave marks on scholar map
+        $studentId = trim($applicant['student_id'] ?? '');
+        if ($studentId !== '') {
+            $stmtRec = $pdo->prepare("DELETE FROM records WHERE student_id = ? OR applicant_id = ?");
+            $stmtRec->execute([$studentId, $id]);
+
+            $stmtSch = $pdo->prepare("DELETE FROM scholars WHERE student_id = ?");
+            $stmtSch->execute([$studentId]);
+        }
+
         $stmt = $pdo->prepare("DELETE FROM applicants WHERE id = ?");
         $stmt->execute([$id]);
     }

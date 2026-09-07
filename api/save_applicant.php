@@ -1,5 +1,51 @@
-    <?php
-    require_once __DIR__ . '/init.php';
+<?php
+require_once __DIR__ . '/init.php';
+
+/* ============================================================
+   CREATE SYSTEM NOTIFICATION
+============================================================ */
+
+function createSystemNotification(
+    PDO $pdo,
+    string $subject,
+    string $message
+) {
+    try {
+        $stmt = $pdo->prepare("
+            INSERT INTO notifications
+            (
+                type,
+                recipient_type,
+                recipient_id,
+                recipient_name,
+                recipient_email,
+                subject,
+                message,
+                deadline,
+                status
+            )
+            VALUES
+            (
+                'approval_status',
+                'system',
+                NULL,
+                'Scholarship System',
+                '',
+                ?,
+                ?,
+                NULL,
+                'sent'
+            )
+        ");
+
+        $stmt->execute([
+            $subject,
+            $message
+        ]);
+    } catch (Throwable $e) {
+        error_log("Failed to create system notification: " . $e->getMessage());
+    }
+}
 
     function getCoordinates($address)
     {
@@ -470,13 +516,29 @@
             $updateStmt = $pdo->prepare($updateSql);
             $updateStmt->execute($updateParams);
 
+            $fullName =
+                trim(
+                    $firstName . ' ' .
+                    $middleName . ' ' .
+                    $lastName
+                );
+
+            createSystemNotification(
+                $pdo,
+                'Applicant Updated',
+                $fullName .
+                ' (Student ID: ' .
+                $studentId .
+                ') was updated in the scholarship system.'
+            );
+
             sendJson([
                 'success' => true,
                 'action' => 'updated',
                 'id' => $id,
                 'message' => 'Applicant updated successfully.'
             ]);
-        }
+                    }
 
         /*
         * ============================================================
@@ -528,6 +590,7 @@
             *
             * JavaScript will ask the user what to do.
             */
+
             sendJson([
                 'success' => false,
                 'duplicate' => true,
@@ -645,6 +708,25 @@
         $insertStmt->execute($insertParams);
 
         $newId = (int) $pdo->lastInsertId();
+
+        $fullName =
+            trim(
+                $firstName . ' ' .
+                $middleName . ' ' .
+                $lastName
+            );
+
+        createSystemNotification(
+            $pdo,
+            'New Applicant Added',
+            $fullName .
+            ' (Student ID: ' .
+            $studentId .
+            ') submitted a ' .
+            $scholarshipType .
+            ' application.'
+        );
+
         sendJson([
             'success' => true,
             'action' => 'created',

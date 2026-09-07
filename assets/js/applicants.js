@@ -11,6 +11,184 @@ function getEl(id) {
     return document.getElementById(id);
 }
 
+/* ============================================================
+   IN-SYSTEM NOTIFICATION
+============================================================ */
+
+function showAppNotification(message, type = "success") {
+
+    let container =
+        document.getElementById("appNotificationContainer");
+
+    if (!container) {
+
+        container =
+            document.createElement("div");
+
+        container.id =
+            "appNotificationContainer";
+
+        container.style.position =
+            "fixed";
+
+        container.style.top =
+            "20px";
+
+        container.style.right =
+            "20px";
+
+        container.style.zIndex =
+            "99999";
+
+        container.style.display =
+            "flex";
+
+        container.style.flexDirection =
+            "column";
+
+        container.style.gap =
+            "10px";
+
+        container.style.pointerEvents =
+            "none";
+
+        document.body.appendChild(
+            container
+        );
+    }
+
+    let borderLeftColor = "#10b981"; // success
+    let iconColor = "#10b981";
+
+    if (type === "error") {
+        borderLeftColor = "#ef4444";
+        iconColor = "#ef4444";
+    } else if (type === "info") {
+        borderLeftColor = "#3b82f6";
+        iconColor = "#3b82f6";
+    } else if (type === "warning") {
+        borderLeftColor = "#f59e0b";
+        iconColor = "#f59e0b";
+    }
+
+    const notification =
+        document.createElement("div");
+
+    notification.className =
+        `app-notification ${type}`;
+
+    notification.style.minWidth =
+        "280px";
+
+    notification.style.maxWidth =
+        "420px";
+
+    notification.style.padding =
+        "13px 18px";
+
+    notification.style.borderRadius =
+        "8px";
+
+    notification.style.background =
+        "#ffffff";
+
+    notification.style.boxShadow =
+        "0 8px 25px rgba(0,0,0,0.12), 0 2px 6px rgba(0,0,0,0.06)";
+
+    notification.style.border =
+        "1px solid #e5e7eb";
+
+    notification.style.borderLeft =
+        `5px solid ${borderLeftColor}`;
+
+    notification.style.fontSize =
+        "14px";
+
+    notification.style.fontWeight =
+        "500";
+
+    notification.style.color =
+        "#1f2937";
+
+    notification.style.display =
+        "flex";
+
+    notification.style.alignItems =
+        "center";
+
+    notification.style.gap =
+        "10px";
+
+    notification.style.pointerEvents =
+        "auto";
+
+    notification.style.cursor =
+        "pointer";
+
+    notification.style.opacity =
+        "0";
+
+    notification.style.transform =
+        "translateX(30px)";
+
+    notification.style.transition =
+        "all 0.3s cubic-bezier(0.16, 1, 0.3, 1)";
+
+    const textSpan =
+        document.createElement("span");
+
+    textSpan.style.flex =
+        "1";
+
+    textSpan.style.lineHeight =
+        "1.4";
+
+    textSpan.textContent =
+        message;
+
+    notification.appendChild(
+        textSpan
+    );
+
+    container.appendChild(
+        notification
+    );
+
+    requestAnimationFrame(() => {
+        notification.style.opacity = "1";
+        notification.style.transform = "translateX(0)";
+    });
+
+    const dismiss = () => {
+        notification.style.opacity =
+            "0";
+
+        notification.style.transform =
+            "translateX(30px)";
+
+        notification.style.transition =
+            "all 0.25s ease";
+
+        setTimeout(() => {
+            notification.remove();
+        }, 250);
+    };
+
+    notification.addEventListener(
+        "click",
+        dismiss
+    );
+
+    setTimeout(
+        dismiss,
+        3800
+    );
+}
+
+if (typeof window !== "undefined") {
+    window.showAppNotification = showAppNotification;
+}
+
 let currentIndex = 0;
 let furthestIndex = 0;
 
@@ -820,7 +998,6 @@ window.editApplicant =
                 document.querySelector(
                     '[data-field="gender"]'
                 );
-
             const fEmail =
                 document.querySelector(
                     '[data-field="email"]'
@@ -1030,9 +1207,10 @@ window.editApplicant =
             );
 
 
-            alert(
-                "Could not load applicant data for edit."
-            );
+            showAppNotification(
+            "Could not load applicant data for edit.",
+            "error"
+        );
         }
     };
 
@@ -2008,9 +2186,9 @@ function initApplicantsPage() {
                                 );
                             }
 
-
-                            alert(
-                                "Applicant updated successfully."
+                            showAppNotification(
+                                "Applicant updated successfully.",
+                                "success"
                             );
                         }
 
@@ -2040,7 +2218,7 @@ function initApplicantsPage() {
                                 );
 
 
-                            /* =====================================
+                                                   /* =====================================
                                DUPLICATE FOUND
                             ===================================== */
 
@@ -2053,27 +2231,21 @@ function initApplicantsPage() {
                                     result.existingApplicant ||
                                     {};
 
-
                                 const existingName =
                                     [
-                                        existing.firstName ||
-                                            "",
-                                        existing.lastName ||
-                                            ""
+                                        existing.firstName || "",
+                                        existing.lastName || ""
                                     ]
                                     .join(" ")
                                     .trim();
-
 
                                 const existingScholarship =
                                     existing.scholarshipType ||
                                     "Unknown scholarship";
 
-
                                 const existingStatus =
                                     existing.status ||
                                     "Unknown";
-
 
                                 const confirmMessage =
                                     "An application already exists " +
@@ -2100,11 +2272,6 @@ function initApplicantsPage() {
 
                                     "Do you want to UPDATE the existing application?";
 
-
-                                /*
-                                 * YES = update
-                                 * NO/CANCEL = do nothing
-                                 */
                                 const shouldUpdate =
                                     window.confirm(
                                         confirmMessage
@@ -2117,11 +2284,10 @@ function initApplicantsPage() {
 
                                 if (!shouldUpdate) {
 
-                                    alert(
-                                        "Application was not saved. " +
-                                        "The existing application was not changed."
+                                    showAppNotification(
+                                        "Application was not saved. The existing application was not changed.",
+                                        "info"
                                     );
-
 
                                     return;
                                 }
@@ -2137,7 +2303,6 @@ function initApplicantsPage() {
                                         existing.id
                                     );
 
-
                                 if (
                                     !result ||
                                     !result.success
@@ -2149,9 +2314,9 @@ function initApplicantsPage() {
                                     );
                                 }
 
-
-                                alert(
-                                    "The existing applicant has been updated successfully."
+                                showAppNotification(
+                                    "The existing applicant has been updated successfully.",
+                                    "success"
                                 );
                             }
 
@@ -2163,12 +2328,12 @@ function initApplicantsPage() {
                             else if (
                                 result &&
                                 result.success &&
-                                result.action ===
-                                    "created"
+                                result.action === "created"
                             ) {
 
-                                alert(
-                                    "Applicant added successfully."
+                                showAppNotification(
+                                    "Applicant added successfully.",
+                                    "success"
                                 );
                             }
 
@@ -2177,7 +2342,7 @@ function initApplicantsPage() {
                                UNEXPECTED RESPONSE
                             ===================================== */
 
-                            else if (
+                             else if (
                                 !result ||
                                 !result.success
                             ) {
@@ -2188,8 +2353,6 @@ function initApplicantsPage() {
                                 );
                             }
                         }
-
-
                         /* =========================================
                            REFRESH TABLE
                         ========================================= */
@@ -2218,11 +2381,11 @@ function initApplicantsPage() {
                         );
 
 
-                        alert(
+                        showAppNotification(
                             err.message ||
-                            "Failed to submit application."
+                            "Failed to submit application.",
+                            "error"
                         );
-
                     }
 
                     finally {
@@ -2394,6 +2557,10 @@ function initApplicantsPage() {
 
                         closeDeleteModal();
 
+                        showAppNotification(
+                            json.message || "Applicant deleted successfully.",
+                            "success"
+                        );
 
                         await loadTableData();
 
@@ -2410,9 +2577,10 @@ function initApplicantsPage() {
 
                     else {
 
-                        alert(
+                       showAppNotification(
                             json.message ||
-                            "Failed to delete applicant."
+                            "Failed to delete applicant.",
+                            "error"
                         );
                     }
 
@@ -2426,8 +2594,9 @@ function initApplicantsPage() {
                     );
 
 
-                    alert(
-                        "Server error when deleting applicant."
+                    showAppNotification(
+                        "Server error when deleting applicant.",
+                        "error"
                     );
                 }
             }
@@ -2591,7 +2760,7 @@ if (
     "loading"
 ) {
 
-    document.addEventListener(
+    document.addEventListener(  
         "DOMContentLoaded",
         initApplicantsPage
     );

@@ -1,6 +1,6 @@
 <?php
 $page_title = 'Scholars';
-$page_css = 'scholars.css?v=' . time();
+$page_css = 'scholars.css';
 include __DIR__ . '/../includes/header.php';
 ?>
 

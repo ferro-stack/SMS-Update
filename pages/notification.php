@@ -1,8 +1,8 @@
 <?php
 $current_page = 'notification';
 $page_title = "Notifications";
-$page_css = "notification.css?v=" . time();
-$page_js = "notification.js?v=" . time();
+$page_css = "notification.css";
+$page_js = "notification.js";
 include __DIR__ . '/../includes/header.php';
 ?>
 

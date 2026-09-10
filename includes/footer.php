@@ -11,7 +11,7 @@
           <?php endif; ?>
 
           <?php if (isset($page_js)): ?>
-               <script src="<?= SITE_BASE ?>/assets/js/<?= $page_js ?>"></script>
+               <script src="<?= SITE_BASE ?>/assets/js/<?= $page_js ?>?v=<?= time() ?>"></script>
           <?php endif; ?>
           <script>
             document.addEventListener('DOMContentLoaded', () => {

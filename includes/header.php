@@ -13,7 +13,7 @@ checkAuth();
         <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@100..900&display=swap" rel="stylesheet">
         <link href="<?= SITE_BASE ?>/assets/css/style.css?v=<?= time() ?>" rel="stylesheet">
         <?php if (isset($page_css)): ?>
-            <link rel="stylesheet" href="<?= SITE_BASE ?>/assets/css/<?= $page_css ?>">
+            <link rel="stylesheet" href="<?= SITE_BASE ?>/assets/css/<?= $page_css ?>?v=<?= time() ?>">
         <?php endif; ?>
         <link rel="icon" href="<?= SITE_BASE ?>/assets/img/cmlogoremove.png">
         <script>

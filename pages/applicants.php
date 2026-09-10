@@ -3,8 +3,8 @@
 
     $current_page = 'applicants';
     $page_title = "Applicants";
-    $page_css = "applicants.css?v=" . time();
-    $page_js = "applicants.js?v=" . time();
+    $page_css = "applicants.css";
+    $page_js = "applicants.js";
 
     include __DIR__ . '/../includes/header.php';
 

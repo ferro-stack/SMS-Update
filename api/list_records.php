@@ -56,7 +56,19 @@ try {
     $stmt->execute($params);
     $rows = $stmt->fetchAll();
 
-    $data = array_map(function($r) {
+    // Look up the applicant behind each record (if any) for richer academic details.
+    $appStmt = $pdo->prepare("
+        SELECT program, gwa, gwa_req, failing_grades, units, enrolled, docs_complete
+        FROM applicants
+        WHERE id = ? OR student_id = ?
+        ORDER BY id DESC
+        LIMIT 1
+    ");
+
+    $data = array_map(function($r) use ($appStmt) {
+        $appStmt->execute([(int)($r['applicant_id'] ?? 0), $r['student_id']]);
+        $app = $appStmt->fetch();
+
         return [
             'id' => (int)$r['id'],
             'studentId' => $r['student_id'],
@@ -69,7 +81,14 @@ try {
             'sy' => $r['sy'],
             'dateEvaluated' => $r['date_evaluated'],
             'date_evaluated' => $r['date_evaluated'],
-            'remarks' => $r['remarks']
+            'remarks' => $r['remarks'],
+            'program' => $app['program'] ?? null,
+            'gwa' => $app ? (float)$app['gwa'] : null,
+            'gwaReq' => $app ? (float)$app['gwa_req'] : null,
+            'failingGrades' => $app ? (int)$app['failing_grades'] : null,
+            'units' => $app ? (int)$app['units'] : null,
+            'enrolled' => $app ? (bool)$app['enrolled'] : null,
+            'docsComplete' => $app ? (bool)$app['docs_complete'] : null,
         ];
     }, $rows);
 

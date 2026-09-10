@@ -171,12 +171,10 @@ try {
             $dept = 'Business Administration';
         } elseif (stripos($prog, 'food') !== false || stripos($prog, 'service') !== false || stripos($prog, 'fpst') !== false) {
             $dept = 'Food Preparation & Service Technology';
-        } elseif (stripos($prog, 'technology') !== false || stripos($prog, 'computer') !== false || stripos($prog, 'it') !== false) {
+        } elseif (stripos($prog, 'technology') !== false || stripos($prog, 'computer') !== false || stripos($prog, 'bsit') !== false) {
             $dept = 'Information Technology';
-        } elseif (!empty($sch['department'])) {
-            $dept = $sch['department'];
-        }elseif (stripos($prog, 'political') !== false) {
-    $dept = 'Political Science';
+        } elseif (stripos($prog, 'political') !== false) {
+            $dept = 'Political Science';
         }
         elseif (stripos($prog, 'public administration') !== false) {
             $dept = 'Public Administration';
@@ -197,6 +195,9 @@ try {
         }
         elseif (stripos($prog, 'bread') !== false || stripos($prog, 'pastry') !== false) {
             $dept = 'Bread & Pastry Production';
+        }
+        elseif (!empty($sch['department'])) {
+            $dept = $sch['department'];
         }
 
         // Department filter

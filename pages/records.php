@@ -125,15 +125,22 @@ include __DIR__ . '/../includes/header.php';
 
 <!-- View Record Details Modal -->
 <div class="custom-modal-overlay" id="recViewOverlay">
-    <div class="custom-modal-card sm">
+    <div class="custom-modal-card lg" style="max-width: 680px; width: 100%; height: 680px; max-height: calc(100vh - 48px); display: flex; flex-direction: column;">
         <div class="custom-modal-header">
             <div>
-                <h3>Record Archive Details</h3>
+                <h3>Record Details</h3>
                 <p>Full evaluation outcome summary.</p>
             </div>
             <button type="button" class="custom-modal-close" id="recViewCloseBtn"><i data-lucide="x"></i></button>
         </div>
-        <div class="custom-modal-body" id="recViewBody"></div>
+        <div class="custom-modal-body" id="recViewBody" style="flex:1; overflow-y:auto;"></div>
+        <div class="custom-modal-footer">
+            <button type="button" class="btn-secondary" id="recViewCloseBtn2">Close</button>
+            <button type="button" class="btn-primary" id="recViewEditBtn">
+                <i data-lucide="pencil"></i>
+                Edit Record
+            </button>
+        </div>
     </div>
 </div>
 

@@ -44,7 +44,7 @@ function normalizeDepartment(deptStr) {
 
     if (
         d.includes("information technology") ||
-        d.includes("it") ||
+        d.includes("bsit") ||
         d.includes("computer")
     ) {
         return "Information Technology";
@@ -70,8 +70,7 @@ function normalizeDepartment(deptStr) {
         return "Political Science";
     }
     if (
-        d.includes("Elementary") ||
-        d.includes("Education")
+        d.includes("elementary")
     ) {
         return "Elementary Education";
     }

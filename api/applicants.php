@@ -192,7 +192,7 @@ if ($status !== null && in_array(strtolower($status), ['approved', 'rejected']))
                 )
                 VALUES
                 (
-                    ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, ?
+                    ?, ?, ?, ?, ?, ?, ?, DATE('now'), ?
                 )
             ");
 

@@ -3,8 +3,8 @@
 
     $current_page = 'scholar-map';
     $page_title = "Scholar Map";
-    $page_css = "scholar-map.css?v=" . time();
-    $page_js = "scholar-map.js?v=" . time();
+    $page_css = "scholar-map.css";
+    $page_js = "scholar-map.js";
 
     include __DIR__ . '/../includes/header.php';
     ?>

@@ -1,8 +1,8 @@
 <?php
 $current_page = 'scholarships';
 $page_title = "Scholarships";
-$page_css = "scholarships.css?v=" . time();
-$page_js = "scholarships.js?v=" . time();
+$page_css = "scholarships.css";
+$page_js = "scholarships.js";
 
 include __DIR__ . '/../includes/header.php';
 ?>
